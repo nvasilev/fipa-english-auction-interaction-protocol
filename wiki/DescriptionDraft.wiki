@@ -1,4 +1,4 @@
-#summary Protocolo de negociación entre productores y consumidores (Nikolay Vasilev)
+#summary Protocolo de negociación entre productores y consumidores (por Rubén Ríos y Nikolay Vasilev)
 
 = Introducción =
 
