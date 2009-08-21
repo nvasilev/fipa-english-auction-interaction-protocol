@@ -17,7 +17,9 @@ Según la FIPA (http://www.fipa.org/specs/fipa00031/index.html), el protocolo ti
 
 A continuación se muestra de manera detallada el proceso de subasta inglesa
 
-[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/Prod-Cons-english-auction.jpg]
+<wiki:comment>
+[http://fipa-english-auction-interaction-protocol.googlecode.com/svn/resources/Prod-Cons-english-auction.jpg]
+</wiki:comment>
 
 En la figura puede observarse que al final de la subasta, cuando ninguno de los consumidores realiza una nueva oferta, el productor informa tanto al ganador de la puja como a los otros consumidores. El consumidor que gana la puja puede en última instancia decidir si compra o no el producto, y esto se indica a través del último mensaje que se muestra en la figura anterior, que puede ser de cualquiera de los tres tipos siguientes: 
 
@@ -33,11 +35,11 @@ En la figura puede observarse que hay unos mensajes que hemos marcado como opcio
 <wiki:comment>
 En un principio se desarrollará un protocolo básico con una única ronda. A continuación se presenta el diagrama de secuencia del protocolo en el que se incluyen los diferentes tipos de mensajes que se intercambiarán entre las distintas partes involucradas.
 
-[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/old/Prod-Cons-basico.jpg]
+[http://fipa-english-auction-interaction-protocol.googlecode.com/svn/resources/diagrams/old/Prod-Cons-basico.jpg]
 
 En un futuro se plantea hacer una negociación con varias rondas. El productor indica el precio de partida de la subasta y los consumidores harán una oferta incial o simplemente rechazarán la puja. Aquellos consumidores que acepten la oferta entrarán en una nueva ronda en la que el precio de partida será el mejor de los ofrecidos entre los diferentes consumidores interesados en el producto. El proceso continuará hasta que sólo quede un consumidor o bien todos rechacen la nueva oferta, en cuyo caso el productor ofrece el producto al mejor postor de la ronda anterior. Véase el diagrama de secuencia siguiente.
 
-[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/old/Prod-Cons-avanzado.jpg]
+[http://fipa-english-auction-interaction-protocol.googlecode.com/svn/resources/diagrams/Prod-Cons-avanzado.jpg]
 
 </wiki:comment>
 
@@ -61,7 +63,7 @@ Las dos implementaciónes de este protocolo (de la parte del productor y de la p
 
 Este protocolo está implementado de la clase {{{ProducerBehaviour}}} que hereda la clase {{{FSMBehaviour}}}. La diagrama de los estados es la siguiente:
 
-[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/protocol-state-machine-diagrams/state-diagram-prodcons-producer.png]
+[http://fipa-english-auction-interaction-protocol.googlecode.com/svn/resources/diagrams/state/state-diagram-prodcons-producer.png]
 
 Según la especificación del protocolo {{{English Auction IP}}}, si hay ganador de la subasta el protocolo tiene que preparar un mensaje {{{ACLMessage}}} con performative {{{REQUEST}}}, que se va a utilizar como un mensaje de inicialización del protocolo {{{Request IP}}}. 
 
@@ -73,7 +75,7 @@ Si no hay mensaje {{{REQUEST}}} el protocolo (comportamiento) {{{ProducerBehavio
 
 Este protocolo está implementado de la clase {{{ConsumerBehaviour}}} que hereda la clase {{{FSMBehaviour}}}. La diagrama de los estados es la siguiente:
 
-[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/protocol-state-machine-diagrams/state-diagram-prodcons-consumer.png]
+[http://fipa-english-auction-interaction-protocol.googlecode.com/svn/resources/diagrams/state/state-diagram-prodcons-consumer.png]
 
 El modelo de este lado es similar como el modelo de la parte del productor. Antes la salida del comportamiento {{{English Auction IP}}} el agente consumidor sabe si es ganador o no. Si no es ganador el protocolo {{{ConsumerBehaviour}}} termina. Si es ganador, se ejecuta el protocolo {{{Request IP}}}. Cuando se incializa el protocolo {{{Request IP}}} se espera para el mensaje {{{REQUEST}}} que tiene que venir del productor. Después empieza la comunicación entre los agentes con que se ejecuta el pago.
 
@@ -89,7 +91,7 @@ La parte principal del protocolo está implementado en la clase {{{EnglishAuctio
 
 La diagrama de los estados es la siguiente:
 
-[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/protocol-state-machine-diagrams/state-diagram-english-auction-initiator.png]
+[http://fipa-english-auction-interaction-protocol.googlecode.com/svn/resources/diagrams/state/state-diagram-english-auction-initiator.png]
 
 Cada uno de los estados es un comportamiento (que en los más de los casos hereda {{{jade.core.behaviours.OneShotBehaviour}}}). De nuevo como una memoria compartida se usa un objeto del tipo {{{jade.core.behaviours.DataStore}}}. De hecho este {{{DataStore}}} es el uno que se utiliza del {{{ProducerBehaviour}}} también.
 
@@ -99,7 +101,7 @@ La parte principal del protocolo está implementado en la clase {{{EnglishAuctio
 
 La diagrama de los estados es la siguiente:
 
-[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/protocol-state-machine-diagrams/state-diagram-english-auction-participant.png]
+[http://fipa-english-auction-interaction-protocol.googlecode.com/svn/resources/diagrams/state/state-diagram-english-auction-participant.png]
 
 Cada uno de los estados es un comportamiento (que en los más de los casos hereda {{{jade.core.behaviours.OneShotBehaviour}}}). De nuevo como una memoria compartida se usa un objeto del tipo {{{jade.core.behaviours.DataStore}}}. De hecho este {{{DataStore}}} es el uno que se utiliza del {{{ConsumerBehaviour}}} también.
 
@@ -127,7 +129,7 @@ La clase {{{RequestInteractionProtocolResponderImpl}}} usa los métodos del inte
 
 La arquitectura del protocolo {{{Productor-Consumidor}}} es la siguiente:
 
-[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/class-diagrams/class-diagram-prodcons-protocol.png]
+[http://fipa-english-auction-interaction-protocol.googlecode.com/svn/resources/diagrams/class/class-diagram-prodcons-protocol.png]
 
 Todas las clases de este protocolo usan el {{{logging}}} estándar de {{{Java}}}. Su configuración se puede modificar en la clase {{{ProdConsConfiguration}}}.
 
@@ -171,7 +173,7 @@ Las nested clases de la parte del consumidor están implementado en la clase {{{
 <wiki:comment>
 La arquitectura que se intente usar por ahora se base en el protocolo de comunicación FIPA-Contract-Net.
 
-[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/old/Prod-Cons-Class-Diagram.png]
+[http://fipa-english-auction-interaction-protocol.googlecode.com/svn/resources/diagrams/old/Prod-Cons-Class-Diagram.png]
 
 El productor es el iniciador de la conversación y él es el uno que la termina. El consumidor desempeña el papel de respondedor. Por eso, según de la especificación del protocolo FIPA-Contract-Net, el productor tiene que añadir un comportamiento del tipo {{{ProducerProtocolHandler}}} (porque hereda {{{ContractNetInitiator}}}) y el consumidor - el comportamiento {{{ConsumerProtocolHandler}}} (heredando {{{ContractNetResponder}}}).
 
@@ -196,7 +198,7 @@ Este protocolo está implementado usando {{{Java SDK 1.6}}} y {{{Jade 3.7}}}.
 
 Se espera que la gente responsable en la implementación de los agentes productor y consumidor, van a realizar los interfaces siguientes:
 
-[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/class-diagrams/class-diagram-prod-cons-requirements.png]
+[http://fipa-english-auction-interaction-protocol.googlecode.com/svn/resources/diagrams/class/class-diagram-prod-cons-requirements.png]
 
 === Requisitos de Inscripción de Servicios de los Consumidores ===
 
@@ -372,7 +374,7 @@ La clase {{{ConsumerMockAgent}}} es un ejemplo tonto de un agente productor.
 
 <wiki:comment>
 Entonces, los agentes consumidor y productor, tienen que estar como está enseñado al dibujo siguiente:
-[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/old/Prod-Cons-Handlers-Agents-Cooperation-Class-Diagram.png]
+[http://fipa-english-auction-interaction-protocol.googlecode.com/svn/resources/diagrams/class/Prod-Cons-Handlers-Agents-Cooperation-Class-Diagram.png]
 </wiki:comment>
 
 == Ejemplos ==
@@ -385,7 +387,7 @@ En la carpeta {{{examples}}} hay una demostración como se usa el protocolo {{{P
 
 En el paquete {{{agentes09.negotiation.ProdConsProtocol.mock.agents}}} están implementado algunos agentes fingidos:
 
-[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/class-diagrams/class-diagram-examples-mock-agents.png]
+[http://fipa-english-auction-interaction-protocol.googlecode.com/svn/resources/diagrams/class/class-diagram-examples-mock-agents.png]
 
 Aquí es la descripción breve de las clases de la diagrama:
  * {{{MockAgent}}} - un agente fingido que registra en {{{DFService}}}.
@@ -416,7 +418,7 @@ Aquí se está presentando la salida del {{{Sniffer}}} en cada uno de los ejempl
 
 Eso está una salida después la ejecución de la clase {{{ExampleProdConsWinnerRefuseToPay}}}:
 
-[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/examples/example-prod-cons-interaction-refuse.png]
+[http://fipa-english-auction-interaction-protocol.googlecode.com/svn/resources/examples-sinffer/example-prod-cons-interaction-refuse.png]
 
 Se ve que él último mensaje enviado del consumidor ganador es con performative {{{REFUSE}}}.
 
@@ -424,7 +426,7 @@ Se ve que él último mensaje enviado del consumidor ganador es con performative
 
 Eso está una salida después la ejecución de la clase {{{ExampleProdConsPaymentFails}}}:
 
-[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/examples/example-prod-cons-interaction-failure.png]
+[http://fipa-english-auction-interaction-protocol.googlecode.com/svn/resources/examples-sinffer/example-prod-cons-interaction-failure.png]
 
 Se ve que él último mensaje enviado del consumidor ganador es con performative {{{FAILURE}}}.
 
@@ -432,7 +434,7 @@ Se ve que él último mensaje enviado del consumidor ganador es con performative
 
 Eso está una salida después la ejecución de la clase {{{ExampleProdConsOK}}}:
 
-[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/examples/example-prod-cons-interaction-ok.png]
+[http://fipa-english-auction-interaction-protocol.googlecode.com/svn/resources/examples-sinffer/example-prod-cons-interaction-ok.png]
 
 Se ve que él último mensaje enviado del consumidor ganador es con performative {{{INFORM}}}, que significa que el pago está terminado con éxito.
 
