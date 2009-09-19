@@ -1,13 +1,6 @@
 package fipa.examples;
 
-import jade.Boot;
-
-import java.io.File;
-
-import fipa.mock.agents.OnceBidConsumer;
-import fipa.mock.agents.ProducerMockAgent;
 import fipa.mock.agents.ThreeBidsConsumerReadyToPayWithPaymentFailure;
-import fipa.mock.agents.TwiceBidsConsumer;
 
 /**
  * Class which shows example of bidding between one producer and three
@@ -23,32 +16,20 @@ import fipa.mock.agents.TwiceBidsConsumer;
  * </p>
  * 
  * @author Nikolay Vasilev
+ * @author Ruben Rios
  */
-public class ExampleProdConsPaymentFails {
+public class ExampleProdConsPaymentFails extends ExampleProdCons {
 
-    // --- Methods -------------------------------------------------------------
+	// --- Constructors --------------------------------------------------------
 
-    public static void main(String[] args) {
-	File projectDir = new File(".");
-	String[] argzz = {
-		"-classpath",
-		projectDir.getAbsolutePath() + "\\classes", // "-gui",
-		"consumer1:" + OnceBidConsumer.class.getName(),
-		"consumer2:" + TwiceBidsConsumer.class.getName(),
-		"consumer3:"
-			+ ThreeBidsConsumerReadyToPayWithPaymentFailure.class
-				.getName(),
-		"producer:" + ProducerMockAgent.class.getName(),
-		"Sniffer:jade.tools.sniffer.Sniffer(consumer*; producer*)" };
-	Boot bootInstance = null;
-	try {
-	    bootInstance = new Boot(argzz);
-	} catch (Exception e) {
-	    throw new RuntimeException(e);
-	} finally {
-	    if (bootInstance != null) {
-		bootInstance = null;
-	    }
+	public ExampleProdConsPaymentFails() {
+		nickname2ClassMap.put("consumer3",
+				ThreeBidsConsumerReadyToPayWithPaymentFailure.class);
 	}
-    }
+
+	// --- Methods -------------------------------------------------------------
+
+	public static void main(String[] args) {
+		(new ExampleProdConsPaymentFails()).executeExample();
+	}
 }

@@ -4,30 +4,30 @@ import java.util.logging.Level;
 
 public class ProdConsConfiguration {
 
-    // --- Class Variables -----------------------------------------------------
+	// --- Class Variables -----------------------------------------------------
 
-    private static ProdConsConfiguration instance;
+	private static ProdConsConfiguration instance;
 
-    // --- Instance Variables --------------------------------------------------
+	// --- Instance Variables --------------------------------------------------
 
-    private Level loggingLevel;
+	private Level loggingLevel;
 
-    // --- Constructors --------------------------------------------------------
+	// --- Constructors --------------------------------------------------------
 
-    private ProdConsConfiguration() {
-	loggingLevel = Level.INFO;
-    }
-
-    // --- Methods -------------------------------------------------------------
-
-    public static ProdConsConfiguration instance() {
-	if (instance == null) {
-	    instance = new ProdConsConfiguration();
+	private ProdConsConfiguration() {
+		loggingLevel = Level.INFO;
 	}
-	return instance;
-    }
 
-    public Level getLogLevel() {
-	return Level.INFO;
-    }
+	// --- Methods -------------------------------------------------------------
+
+	public static ProdConsConfiguration instance() {
+		if (instance == null) {
+			instance = new ProdConsConfiguration();
+		}
+		return instance;
+	}
+
+	public Level getLogLevel() {
+		return Level.INFO;
+	}
 }

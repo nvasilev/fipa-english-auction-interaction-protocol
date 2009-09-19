@@ -23,94 +23,121 @@ import fipa.protocol.request.interaction.RequestInteractionProtocolInitiator;
  * the bidding, is executed the <code>Request IP</code>.
  * 
  * @author Nikolay Vasilev
+ * @author Ruben Rios
  */
-public class ProducerBehaviour extends FSMBehaviour {
+public abstract class ProducerBehaviour extends FSMBehaviour {
 
-    // --- Constants -----------------------------------------------------------
+	// --- Enums ---------------------------------------------------------------
 
-    // bloody eclipse ;)
-    private static final long serialVersionUID = 2898778289967324086L;
+	/**
+	 * Enumeration which is used in the communication between the agent and the
+	 * behaviour. Its aim is to notify the producer for the exit of the auction.
+	 */
+	public enum AuctionTerminationEvent {
+		NO_WINNER,
 
-    private static final String PRODUCER = "[Producer-Protocol] ";
+		WINNER_REFUSE_TO_PAY,
 
-    // --- Constants (States) --------------------------------------------------
+		PAYMENT_FAILURE,
 
-    protected static final String ENGLISH_AUCTION = "English-Auction";
-    protected static final String REQUEST_INTERACTION_PROTOCOL = "Request-Interaction-Protocol";
-    protected static final String DUMMY_END = "End";
-
-    // --- Constants (state exit values) --------------------------------------
-
-    protected static final int WINNER_REQUEST_PREPARED = EnglishAuctionInitiator.WINNER_REQUEST_PREPARED;
-
-    // --- Class Variables -----------------------------------------------------
-
-    private static Logger LOG = Logger.getLogger(ProducerBehaviour.class
-	    .getName());
-
-    // --- Constructors --------------------------------------------------------
-
-    public ProducerBehaviour(Agent agent) {
-	this(agent, new DataStore());
-    }
-
-    public ProducerBehaviour(Agent agent, DataStore store) {
-	super(agent);
-	setDataStore(store);
-
-	// //////////////////////// REGISTER TRANSITIONS ///////////////////////
-	{
-	    registerDefaultTransition(ENGLISH_AUCTION, DUMMY_END);
-	    registerTransition(ENGLISH_AUCTION, REQUEST_INTERACTION_PROTOCOL,
-		    WINNER_REQUEST_PREPARED);
-	    registerDefaultTransition(REQUEST_INTERACTION_PROTOCOL, DUMMY_END);
+		PAYMENT_OK
 	}
 
-	// //////////////////////// REGISTER STATES ////////////////////////////
+	// --- Constants -----------------------------------------------------------
 
-	// ENGLISH_AUCTION
-	{
-	    Behaviour englishAuction = EnglishAuctionInitiatorFactory
-		    .instance().createEnglishAuctionInitiator(myAgent,
-			    getDataStore());
-	    englishAuction.setDataStore(getDataStore());
-	    registerFirstState(englishAuction, ENGLISH_AUCTION);
+	// bloody eclipse ;)
+	private static final long serialVersionUID = 2898778289967324086L;
+
+	private static final String PRODUCER = "[Producer-Protocol] ";
+
+	// --- Constants (States) --------------------------------------------------
+
+	protected static final String ENGLISH_AUCTION = "English-Auction";
+	protected static final String REQUEST_INTERACTION_PROTOCOL = "Request-Interaction-Protocol";
+	protected static final String DUMMY_END = "End";
+
+	// --- Constants (state exit values) --------------------------------------
+
+	protected static final int WINNER_REQUEST_PREPARED = EnglishAuctionInitiator.WINNER_REQUEST_PREPARED;
+
+	// --- Class Variables -----------------------------------------------------
+
+	private static Logger LOG = Logger.getLogger(ProducerBehaviour.class
+			.getName());
+
+	// --- Constructors --------------------------------------------------------
+
+	public ProducerBehaviour(Agent agent) {
+		this(agent, new DataStore());
 	}
 
-	// REQUEST_INTERACTION_PROTOCOL
-	{
-	    Behaviour prepareRequest = new RequestInteractionProtocolInitiator(
-		    myAgent, null, getDataStore());
-	    registerState(prepareRequest, REQUEST_INTERACTION_PROTOCOL);
-	}
+	public ProducerBehaviour(Agent agent, DataStore store) {
+		super(agent);
+		setDataStore(store);
 
-	// DUMMY_END
-	{
-	    Behaviour dummyEnd = new OneShotBehaviour(myAgent) {
-		private static final long serialVersionUID = -4216350173804405598L;
-
-		public void action() {
-		    log("End producer's behaviour.");
+		// //////////////////////// REGISTER TRANSITIONS ///////////////////////
+		{
+			registerDefaultTransition(ENGLISH_AUCTION, DUMMY_END);
+			registerTransition(ENGLISH_AUCTION, REQUEST_INTERACTION_PROTOCOL,
+					WINNER_REQUEST_PREPARED);
+			registerDefaultTransition(REQUEST_INTERACTION_PROTOCOL, DUMMY_END);
 		}
-	    };
-	    registerLastState(dummyEnd, DUMMY_END);
+
+		// //////////////////////// REGISTER STATES ////////////////////////////
+
+		// ENGLISH_AUCTION
+		{
+			Behaviour englishAuction = EnglishAuctionInitiatorFactory
+					.instance().createEnglishAuctionInitiator(myAgent,
+							getDataStore());
+			englishAuction.setDataStore(getDataStore());
+			registerFirstState(englishAuction, ENGLISH_AUCTION);
+		}
+
+		// REQUEST_INTERACTION_PROTOCOL
+		{
+			Behaviour prepareRequest = new RequestInteractionProtocolInitiator(
+					myAgent, null, getDataStore());
+			registerState(prepareRequest, REQUEST_INTERACTION_PROTOCOL);
+		}
+
+		// DUMMY_END
+		{
+			Behaviour dummyEnd = new OneShotBehaviour(myAgent) {
+				private static final long serialVersionUID = -4216350173804405598L;
+
+				public void action() {
+					log("End producer's behaviour.");
+				}
+			};
+			registerLastState(dummyEnd, DUMMY_END);
+		}
 	}
-    }
 
-    // --- Methods (ihnerited by Behaviour) ------------------------------------
+	// --- Methods (abstract) --------------------------------------------------
 
-    @Override
-    public void onStart() {
-	// initializeDataStore(initiation);
-    }
+	/**
+	 * Returns the new price offered by the producer.
+	 * 
+	 * @return Returns the new price offered by the producer.
+	 */
+	public abstract double getPrice();
 
-    // --- Methods -------------------------------------------------------------
+	/**
+	 * Notifies the producer for the exit event from the auction.
+	 * 
+	 * @param event
+	 *            The termination event from the auction.
+	 */
+	public abstract void handleTerminateEvent(AuctionTerminationEvent event);
 
-    private void log(String msg) {
-	Level logLevel = ProdConsConfiguration.instance().getLogLevel();
-	if (LOG.isLoggable(logLevel)) {
-	    LOG.log(logLevel, PRODUCER + " [" + myAgent.getLocalName() + "] "
-		    + msg + "\n");
+	// --- Methods -------------------------------------------------------------
+
+	private void log(String msg) {
+		Level logLevel = ProdConsConfiguration.instance().getLogLevel();
+		if (LOG.isLoggable(logLevel)) {
+			LOG.log(logLevel, PRODUCER + " [" + myAgent.getLocalName() + "] "
+					+ msg + "\n");
+		}
 	}
-    }
 }

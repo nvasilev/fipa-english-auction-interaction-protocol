@@ -5,16 +5,19 @@ package fipa.mock.agents;
  * misses all other bidding iterations.
  * 
  * @author Nikolay Vasilev
+ * @author Ruben Rios
  */
 public class TwiceBidsConsumer extends ConsumerMockAgent {
 
-    // --- Constants -----------------------------------------------------------
+	// --- Constants -----------------------------------------------------------
 
-    private static final long serialVersionUID = -5186297180014452011L;
+	private static final long serialVersionUID = -5186297180014452011L;
 
-    // --- Constructors --------------------------------------------------------
+	// --- Constructors --------------------------------------------------------
 
-    public TwiceBidsConsumer() {
-	super(2);
-    }
+	public TwiceBidsConsumer() {
+		super(2);
+		this.sdName = "two-bid-agent" + hashCode();
+		this.sdType = "two-bid-agent" + hashCode();
+	}
 }
