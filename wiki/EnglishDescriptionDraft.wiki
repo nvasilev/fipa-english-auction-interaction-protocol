@@ -1,0 +1,474 @@
+#summary Producer-Consumer Negotiation Protocol Protocolo de negociacion entre
+
+= Introduction =
+
+Definition of the negotiation protocols between the production centers and consumer centers for the price of the goods.
+
+= Content =
+<wiki:toc max_depth="4" />
+
+= Details =
+
+The communication protocol for developing between the producer and the consumers would be finally of the type English Auction, in which the producer offers its production to with a given initial price {{{$0}}} and sells it to bidder who offers the highest price.
+
+<wiki:comment>
+== Interactions ==
+
+According to the FIPA (http://www.fipa.org/specs/fipa00031/index.html), the protocol takes place in the following manner: the auctioneer (producer in our case)  
+
+
+, el protocolo tiene lugar de la siguiente manera: el subastador (productor en nuestro caso) trata de encontrar el precio de mercado de un bien o producto proponiendo un precio de salida inferior que el del valor de mercado y va aumentando gradualmente el precio. Cada vez que el subastador anuncia el precio, este espera la señal de compradores que estén dispuestos a pagar el precio propuesto. Tan pronto como un comprador indica que acepta el precio, el subastador hace un nuevo llamamiento de convocatoria de ofertas con un precio ligeramente superior. La subasta continua hasta que los compradores no están dispuestos a pagar el precio propuesto. El producto se vende al comprador que realizo la ultima oferta por el precio acordado.
+
+A continuación se muestra de manera detallada el proceso de subasta inglesa
+
+[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/Prod-Cons-english-auction.jpg]
+
+En la figura puede observarse que al final de la subasta, cuando ninguno de los consumidores realiza una nueva oferta, el productor informa tanto al ganador de la puja como a los otros consumidores. El consumidor que gana la puja puede en ultima instancia decidir si compra o no el producto, y esto se indica a través del ultimo mensaje que se muestra en la figura anterior, que puede ser de cualquiera de los tres tipos siguientes: 
+
+ * REFUSE: el consumidor decide no pagar 
+ * FAILURE: si ocurre algún problema y el pago no se puede llevar a cabo
+ * INFORM: tras realizar el pago se informa al productor  
+</wiki:comment>
+
+<wiki:comment>
+En la figura puede observarse que hay unos mensajes que hemos marcado como opcionales y otros como obligatorios. Los mensajes obligatorios son considerados por la FIPA pero para nuestro propósito consideramos que podrían ser obviados. En concreto, los mensajes que se consideran opcionales son los mensajes de inicio de subasta y los de aceptación de una oferta. En el caso de los mensajes de inicio de subasta los consideramos opcionales porque se utilizaran sesiones para identificar la frescura de los mensajes. Por otra parte, los mensajes de aceptación / rechazo de propuestas no los consideraremos inicialmente porque según la FIPA estos son de utilidad para el subastador (productor) en el caso de que este compruebe que la oferta hecha por el solicitante (consumidor) es real, es decir, que tiene el dinero suficiente para pagar el producto, situación que no consideraremos en la versión actual.
+</wiki:comment>
+
+
+<wiki:comment>
+En un principio se desarrollara un protocolo básico con una única ronda. A continuación se presenta el diagrama de secuencia del protocolo en el que se incluyen los diferentes tipos de mensajes que se intercambiaran entre las distintas partes involucradas.
+
+[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/old/Prod-Cons-basico.jpg]
+
+En un futuro se plantea hacer una negociación con varias rondas. El productor indica el precio de partida de la subasta y los consumidores harán una oferta inicial o simplemente rechazaran la puja. Aquellos consumidores que acepten la oferta entraran en una nueva ronda en la que el precio de partida sera el mejor de los ofrecidos entre los diferentes consumidores interesados en el producto. El proceso continuara hasta que solo quede un consumidor o bien todos rechacen la nueva oferta, en cuyo caso el productor ofrece el producto al mejor postor de la ronda anterior. Véase el diagrama de secuencia siguiente.
+
+[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/old/Prod-Cons-avanzado.jpg]
+
+</wiki:comment>
+
+= Protocol Model =
+
+The model (for the both sides - producer and consumer) consists of implementation of two sub-protocols (realized as behaviours):
+ * [http://www.fipa.org/specs/fipa00031/XC00031F.html FIPA English Auction Interaction Protocol]
+ * [http://www.fipa.org/specs/fipa00026/SC00026H.html FIPA Request Interaction Protocol]
+
+The first protocol implements the auction. The second is responsible for the execution of the payment.
+
+In the beginning is executed the first protocol. If there is winner in the auction, it is executed the second protocol. Otherwise, the second protocol is omitted and the protocol {{{Producer-Consumer}}} finishes without winner.
+
+Each of these protocols are implemented as a Finite State Machine (using the class {{{jade.core.behaviours.FSMBehaviour}}}). Each of the states is a behaviour ({{{jade.core.behaviours.Behaviour}}}). According to the definition, each finite state machine has primitive internal memory, which is used for coordination between the states. In our case, as memory used for coordination between the internal states, is used an object of the type {{{jade.core.behaviours.DataStore}}} (which de facto is a map of the type {{{jade.util.leap.HashMap}}}).
+
+== Producer-Consumer Protocol Model ===
+
+Both implementations of the protocol (from the point of view of the producer, and correspondingly - of the consumer side) have similar structure.
+
+=== Producer Side ===
+
+This protocol is implemented by the class {{{ProducerBehaviour}}}, which inherit the class {{{FSMBehaviour}}}. The diagram of the states is the following:
+
+[http://fipa-english-auction-interaction-protocol.googlecode.com/svn/resources/diagrams/state/state-diagram-prodcons-producer.png]
+
+Según la especificación del protocolo {{{English Auction IP}}}, si hay ganador de la subasta el protocolo tiene que preparar un mensaje {{{ACLMessage}}} con performative {{{REQUEST}}}, que se va a utilizar como un mensaje de inicialización del protocolo {{{Request IP}}}. 
+
+Si hay un ganador, el protocolo {{{English Auction IP}}} crea el mensaje {{{REQUEST}}} y lo guarda en la memoria de coordinación. Después se ejecuta el otro protocolo (comportamiento) {{{Request IP}}}. El usa el mensaje guardado antes, para empezar la comunicación con el ganador sobre el pago. Después la salida del {{{Request IP}}},  {{{ProducerBehaviour}}} termina también.
+
+Si no hay mensaje {{{REQUEST}}} el protocolo (comportamiento) {{{ProducerBehaviour}}} termina directamente.
+
+Esa clase declara el {{{enum}}}:
+{{{
+    public enum AuctionTerminationEvent {
+	NO_WINNER,
+	WINNER_REFUSE_TO_PAY,
+	PAYMENT_FAILURE,
+	PAYMENT_OK
+    }
+}}}
+que se usa en la comunicación entre el agente y el comportamiento (behaviour). Su meta es a notificar el productor para la salida de la subasta.
+
+También esta clase declara algunos métodos abstractos que el agente que quiere usar este comportamiento, tiene que implementar. Los métodos son los siguientes:
+ * {{{public double getPrice()}}} - cada vez invocado, este método devuelve un precio nuevo para cada iteración de la subasta.
+ * {{{public void handleTerminateEvent(AuctionTerminationEvent)}}} - notifica el productor para el evento de salida de la subasta.
+
+=== Parte del Consumidor ===
+
+Este protocolo esta implementado de la clase {{{ConsumerBehaviour}}} que hereda la clase {{{FSMBehaviour}}}. La diagrama de los estados es la siguiente:
+
+[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/protocol-state-machine-diagrams/state-diagram-prodcons-consumer.png]
+
+El modelo de este lado es similar como el modelo de la parte del productor. Antes la salida del comportamiento {{{English Auction IP}}} el agente consumidor sabe si es ganador o no. Si no es ganador el protocolo {{{ConsumerBehaviour}}} termina. Si es ganador, se ejecuta el protocolo {{{Request IP}}}. Cuando se incializa el protocolo {{{Request IP}}} se espera para el mensaje {{{REQUEST}}} que tiene que venir del productor. Después empieza la comunicación entre los agentes con que se ejecuta el pago.
+
+*NOTA*: El pago no esta implementado en este protocolo. Esta funcionalidad esta delegada al agente consumidor porque es especifica.
+
+Esta clase declara algunos métodos abstractos que el agente que quiere usar este comportamiento, tiene que implementar. Los métodos son los siguientes:
+ * {{{public boolean isPriceAcceptable(double)}}} - Devuelve {{{true}}} si el precio sugerido por el productor para vender la mercancía es aceptado por el consumidor y {{{false}}} en otro caso.
+ * {{{public boolean isReadyToPay(double)}}} - Prueba si el consumidor esta listo para pagar el precio sugerido.
+ * {{{public boolean executePayment(AID,double)}}} - Ejecuta el pago al productor y devuelve {{{true}}} si el pago termina con éxito y {{{false}}} en otro caso.
+
+== Modelo del FIPA English Auction Interaction Protocol ==
+
+En este momento, la especificación del protocolo esta con estatus "Experimental" y entonces no hay implementación en la distribución de {{{Jade}}} usada. Por eso el protocolo de subasta inglesa se había implementado desde el principio.
+
+=== Parte del Productor ===
+
+La parte principal del protocolo esta implementado en la clase {{{EnglishAuctionInitiator}}} que hereda la clase {{{FSMBehaviour}}}. Aunque realmente el agente usa la clase {{{EnglishAuctionInitiatorImpl}}} (que hereda {{{EnglishAuctionInitiator}}}), que hace la conexión entre el protocolo y el agente, usando los métodos definidos en la clase {{{ProducerBehaviour}}}.
+
+La diagrama de los estados es la siguiente:
+
+[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/protocol-state-machine-diagrams/state-diagram-english-auction-initiator.png]
+
+Cada uno de los estados es un comportamiento (que en los mas de los casos hereda {{{jade.core.behaviours.OneShotBehaviour}}}). De nuevo como una memoria compartida se usa un objeto del tipo {{{jade.core.behaviours.DataStore}}}. De hecho este {{{DataStore}}} es el uno que se utiliza del {{{ProducerBehaviour}}} también.
+
+El productor hace un {{{broadcast}}} a todos agentes registrados en {{{DFService}}} independientemente del nombre del servicio registrado de ellos. 
+
+=== Parte del Consumidor ===
+
+La parte principal del protocolo esta implementado en la clase {{{EnglishAuctionParticipant}}} que hereda la clase {{{FSMBehaviour}}}. Aunque realmente el agente usa la clase {{{EnglishAuctionParticipantImpl}}} (que hereda {{{EnglishAuctionParticipant}}}), que hace la conexión entre el protocolo y el agente, usando los métodos definidos en la clase {{{ConsumerBehaviour}}}.
+
+La diagrama de los estados es la siguiente:
+
+[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/protocol-state-machine-diagrams/state-diagram-english-auction-participant.png]
+
+Cada uno de los estados es un comportamiento (que en los mas de los casos hereda {{{jade.core.behaviours.OneShotBehaviour}}}). De nuevo como una memoria compartida se usa un objeto del tipo {{{jade.core.behaviours.DataStore}}}. De hecho este {{{DataStore}}} es el uno que se utiliza del {{{ConsumerBehaviour}}} también.
+
+== Modelo del FIPA Request Interaction Protocol ==
+
+En este momento, la especificacion del protocolo esta con estatus "Standard" y entonces hay implementación en la distribución de {{{Jade}}} usada. Según el [http://jade.tilab.com/doc/programmersguide.pdf JADE Programmer's Guide] para implementar este protocolo se tienen que usar las clases {{{jade.proto.AchieveREInitiator}}} y {{{jade.proto.AchieveREResponder}}}. Por eso habían usados estas clases.
+
+=== Parte del Productor ===
+
+La parte principal del protocolo esta implementado de la clase {{{RequestInteractionProtocolInitiator}}} que hereda la clase {{{AchieveREInitiator}}}. Aunque realmente el agente usa la clase {{{RequestInteractionProtocolInitiatorImpl}}} (que hereda {{{RequestInteractionProtocolInitiator}}}), que hace la conexión entre el protocolo y el agente, usando los métodos definidos en la clase {{{ProducerBehaviour}}}.
+
+En el principio, la clase {{{RequestInteractionProtocolInitiator}}} obtiene el mensaje {{{REQUEST}}} guardado del comportamiento de la subasta inglesa en el {{{DataStore}}}.
+
+Al fin de la ejecución, la clase {{{RequestInteractionProtocolInitiatorImpl}}} usa los métodos de la clase {{{ProducerBehaviour}}} y notifica el agente productor para la salida del pago.
+
+=== Parte del Consumidor ===
+
+La parte principal del protocolo esta implementado de la clase {{{RequestInteractionProtocolResponder}}} que hereda la clase {{{AchieveREResponder}}}. Aunque realmente el agente usa la clase {{{RequestInteractionProtocolResponderImpl}}} (que hereda {{{RequestInteractionProtocolResponder}}}), que hace la conexion entre el protocolo y el agente, usando los métodos definidos en la clase {{{ConsumerBehaviour}}}.
+
+En el principio, la clase {{{RequestInteractionProtocolResponder}}} recibe el mensaje {{{REQUEST}}} del productor y prepara una respuesta.
+
+La clase {{{RequestInteractionProtocolResponderImpl}}} usa los métodos de la clase {{{ConsumerBehaviour}}} y "pregunta" el agente correspondiente si esta listo a hacer pago y correspondientemente si la respuesta es positiva, si el pago esta con éxito.
+
+= Arquitectura =
+
+La arquitectura del protocolo {{{Productor-Consumidor}}} es la siguiente:
+
+[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/class-diagrams/class-diagram-prodcons-protocol.png]
+
+Todas las clases de este protocolo usan el {{{logging}}} estándar de {{{Java}}}. Su configuración se puede modificar en la clase {{{ProdConsConfiguration}}}.
+
+Los estados internos del protocolo de subasta inglesa (en las ambos partes - del productor y del consumidor) son implementado como {{{nested classes}}}.
+
+== Nested Classes del Productor ==
+
+Las nested clases de la parte del productor están implementado en la clase {{{EnglishAuctionInitiator}}}. Ellas son las siguientes:
+ * {{{PrepareInitiations}}} - prepara los mensajes de iniciación del protocolo (con performative {{{INFORM}}}).
+ * {{{SendInitiations}}} - envía los mensajes de iniciación.
+ * {{{PrepareCfps}}} - prepara los mensajes de iniciación de una iteración de la subasta (con performative {{{CFP}}}).
+ * {{{SendCfps}}} - envía los mensajes de iniciación de la iteración de la subasta.
+ * {{{ReplyReceiver}}} - responsable de acumular los mensajes recibidos.
+ * {{{SeqChecker}}} - verifica que los mensajes recibidos son en la secuencia requerida del protocolo.
+ * {{{NotUnderstoodHandler}}} - maneja mensajes que no están como se espera en el protocolo.
+ * {{{FailureHandler}}} - maneja mensajes que causan falla.
+ * {{{OutOfSequenceHandler}}} - maneja mensajes que no están en secuencia.
+ * {{{ProposeHandler}}} - maneja las confirmaciones del consumidor (mensajes con performative {{{PROPOSE}}}).
+ * {{{SessionsVerifier}}} - verifica que cada consumidor que se pone en contacto es parte de la subasta (es decir, tiene un objeto de sesión que se guarda del productor).
+ * {{{PrepareProposals}}} - prepara las notificaciones quien consumidor esta ganador en la corriente iteracion de la subasta (es decir mensajes con performatives {{{ACCEPT_PROPOSAL}}} y {{{REJECT_PROPOSAL}}}).
+ * {{{SendProposals}}} - envía las notificaciones.
+ * {{{TerminateBiddingIteration}}} - termina la corriente iteración de la subasta.
+ * {{{PrepareClosingInforms}}} - prepara mensajes para terminación de la subasta (mensajes con performative {{{INFORM}}} y contenido quien es el ganador de la subasta).
+ * {{{SendClosingInforms}}} - envía los mensajes para terminación de la subasta inglesa a los consumidores (mensaje con performative {{{INFORM}}}).
+ * {{{PrepareWinnerRequest}}} - prepara el mensaje con performative {{{REQUEST}}} que se va a usar como mensaje de inicialización del protocolo {{{Request Interaction Protocol}}}.
+
+== Nested Classes del Consumidor ==
+
+Las nested clases de la parte del consumidor están implementado en la clase {{{EnglishAuctionParticipant}}}. Ellas son las siguientes:
+ * {{{InitInformReceiver}}} - recibe el mensaje con performative {{{INFORM}}} con que el productor empieza el protocolo.
+ * {{{NextMsgReceiver}}} - recibe los mensajes después el primer mensaje {{{INFORM}}}.
+ * {{{SeqChecker}}} - verifica que los mensajes recibidos son en la secuencia requerida del protocolo.
+ * {{{OutOfSeqHandler}}} - maneja mensajes que no están en secuencia.
+ * {{{NextReplySender}}} - envía las respuestas de los mensajes recibidos durante la subasta.
+ * {{{CfpHandler}}} - maneja las ofertas del productor (mensajes con performative {{{INFORM}}}.
+ * {{{AcceptProposalHandler}}} - maneja la confirmación del productor que el consumidor esta el ganador en la iteracion corriente de la subasta (mensaje con performative {{{ACCEPT_PROPOSAL}}}).
+ * {{{RejectProposalHandler}}} - maneja el rechazo del productor que el consumidor no esta ganador en la iteracion corriente de la subasta (mensaje con performative {{{REJECT_PROPOSAL}}}).
+ * {{{TerminateBiddingIteration}}} - termina la iteración corriente de la subasta y limpia la memoria de coordinación de la información guardada durante la iteración.
+ * {{{ClosingInformHandler}}} - maneja el mensaje que cierra la subasta (mensaje con performative {{{INFORM}}}).
+
+<wiki:comment>
+La arquitectura que se intente usar por ahora se base en el protocolo de comunicación FIPA-Contract-Net.
+
+[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/old/Prod-Cons-Class-Diagram.png]
+
+El productor es el iniciador de la conversación y el es el uno que la termina. El consumidor desempeña el papel de respondedor. Por eso, segun de la especificacion del protocolo FIPA-Contract-Net, el productor tiene que añadir un comportamiento del tipo {{{ProducerProtocolHandler}}} (porque hereda {{{ContractNetInitiator}}}) y el consumidor - el comportamiento {{{ConsumerProtocolHandler}}} (heredando {{{ContractNetResponder}}}).
+
+{{{ProducerProtocolHandler}}} y {{{ConsumerProtocolHandler}}} no procesan los mensajes que reciben de sus mismo. Ellos dedican el procesamiento a otras clases (que heredan el clase {{{Behaviour}}}), como cada clase procesa solo un tipo de mensaje. Los procesadores de los mensajes son los siguiente:
+
+ * Del parte del productor (todos heredan la subclase {{{ProducerMsgHandler}}}):
+   * {{{RefuseMsgHandler}}}  - esa clase procesa {{{ACLMessage}}}s con performative REFUSE.
+   * {{{ProposeMsgHandler}}}  - esa clase procesa {{{ACLMessage}}}s con performative PROPOSE.
+ * Del parte del consumidor (todos heredan la subclase {{{ConsumerMsgHandler}}}):
+   * {{{CFPMsgHandler}}} - esa clase procesa {{{ACLMessage}}}s con performative CFP.
+   * {{{RejectProposalMsgHandler}}}  - esa clase procesa {{{ACLMessage}}}s con performative REJECT_PROPOSAL.
+   * {{{AcceptProposalMsgHandler}}}  - esa clase procesa {{{ACLMessage}}}s con performative ACCEPT_PROPOSAL.
+</wiki:comment>
+
+= Requisitos =
+
+== Requisitos Tecnicos ==
+
+Este protocolo esta implementado usando {{{Java SDK 1.6}}} y {{{Jade 3.7}}}.
+
+== Requisitos del Consumidor ==
+
+Para puede participar en una subasta, *el consumidor, tiene que registrar al menos un servicio en {{{DFService}}}*.
+
+<wiki:comment>
+Requisitos de Uso
+
+Se espera que la gente responsable en la implementación de los agentes productor y consumidor, van a realizar los interfaces siguientes:
+
+[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/class-diagrams/class-diagram-prod-cons-requirements.png]
+
+Requisitos del Productor
+
+Se espera que el agente productor va a realizar este interfaz:
+
+{{{
+public interface Producer {
+
+    /**
+     * Enumeration que usa en la comunicación entre el agente y el comportamiento
+     * (behaviour). Su meta es a notificar el productor para la salida de la subasta.
+     */
+    public enum AuctionTerminationEvent {
+	NO_WINNER,
+	WINNER_REFUSE_TO_PAY,
+	PAYMENT_FAILURE,
+	PAYMENT_OK
+    }
+
+    /**
+     * Devuelve el precio nuevo ofrecido del productor.
+     * 
+     * @return Devuelve el precio nuevo ofrecido del productor.
+     */
+    double getPrice();
+
+    /**
+     * Notifica el productor para el evento de salida de la subasta.
+     * 
+     * @param event
+     *         El evento de salida de la subasta.
+     */
+    void handleTerminateEvent(AuctionTerminationEvent event);
+}
+}}}
+
+Requisitos del Consumidor
+
+Se espera que el agente consumidor va a realizar este interfaz:
+
+{{{
+public interface Consumer {
+
+    /**
+     * Devuelve true si el precio sugerido por el productor
+     * para vender la mercancía es aceptado por el consumidor
+     * y false en otro caso.
+     * 
+     * @return Devuelve true si el precio sugerido por el productor
+     *         para vender la mercancía es aceptado por el consumidor
+     *         y false en otro caso.
+     */
+    boolean isPriceAcceptable(double offeredPrice);
+
+    /**
+     * Prueba si el consumidor esta listo para pagar el precio sugerido.
+     * 
+     * @param price
+     *         El precio que se espera.
+     * @return Devuelve true si el consumidor esta listo para pagar el
+     *         precio y false en otro caso.
+     */
+    boolean isReadyToPay(double price);
+
+    /**
+     * Ejecuta el pago al productor.
+     * 
+     * @param aid
+     *         El AID del productor a quien este consumidor va a pagar.
+     * @param price
+     *         El precio que se espera.
+     * @return Devuelve true si el pago termina con éxito y false en otro caso.
+     */
+    boolean executePayment(AID aid, double price);
+}
+}}}
+</wiki:comment>
+
+= Uso =
+Los agentes tienen que crear los comportamientos usando los constructores correspondientemente de las dos clases {{{ProducerBehaviour}}} y {{{ConsumerBehaviour}}}. El productor y el consumidor tienen que crear una clase anónima (o justamente una clase que hereda el comportamiento querido) implementando los métodos abstractos definidos correspondientemente por {{{ProducerBehaviour}}} y {{{ConsumerBehaviour}}}.
+
+== Uso del Productor ==
+
+El comportamiento del productor se puede usar en esta manera:
+
+{{{
+public class ProducerAgent extends Agent {
+
+    // --- Constructor ---------------------------------------------------------
+
+    public ProducerAgent() {
+    }
+
+    // --- Methods (Agent) -----------------------------------------------------
+
+    @Override
+    protected void setup() {
+	// ...
+	pb = new ProducerBehaviour(this) {
+
+            @Override
+            public double getPrice() {
+                double newPrice = ...; // su cálculo del precio nuevo aquí
+                return newPrice;
+            }
+
+            @Override
+            public void handleTerminateEvent(AuctionTerminationEvent event) {
+                // su tratamiento del evento de salida de la subasta aquí
+            }
+        };
+        addBehaviour(pb);
+	// ...
+    }
+}
+}}}
+
+La clase {{{ProducerMockAgent}}} es un ejemplo tonto de un agente productor.
+
+== Uso del Consumidor ==
+
+El comportamiento del consumidor se puede usar en esta manera:
+
+{{{
+public class ConsumerAgent extends Agent {
+
+    // --- Constructors --------------------------------------------------------
+
+    public ConsumerAgent() {
+    }
+
+    // --- Methods (Agent) -----------------------------------------------------
+
+    @Override
+    protected void setup() {
+	// ...
+	ConsumerBehaviour cb = new ConsumerBehaviour(this) {
+
+            @Override
+            public boolean isPriceAcceptable(double offeredPrice) {
+                boolean isAcceptable = ...; // su implementación aquí
+                return isAcceptable;
+            }
+
+            @Override
+            public boolean isReadyToPay(double price) {
+                boolean isReadyToPay = ...; // su implementación aquí
+                return isReadyToPay;
+            }
+
+            @Override
+            public boolean executePayment(AID aid, double price) {
+                boolean isPaymentSuccessful = ...; // su implementación del pago aquí
+                return isPaymentSuccessful;
+            }
+        };
+	addBehaviour(cb);
+	// ...
+    }
+}
+}}}
+
+La clase {{{ConsumerMockAgent}}} es un ejemplo tonto de un agente productor.
+
+<wiki:comment>
+Entonces, los agentes consumidor y productor, tienen que estar como esta ensenado al dibujo siguiente:
+[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/old/Prod-Cons-Handlers-Agents-Cooperation-Class-Diagram.png]
+</wiki:comment>
+
+= Ejemplos =
+
+En la carpeta {{{examples}}} hay una demostración como se usa el protocolo {{{Productor-Consumidor}}}.
+
+== Clases ==
+
+=== Clases de Agentes Fingidos ===
+
+En el paquete {{{agentes09.negotiation.ProdConsProtocol.mock.agents}}} están implementado algunos agentes fingidos:
+
+[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/class-diagrams/class-diagram-examples-mock-agents.png]
+
+Aquí es la descripción breve de las clases de la diagrama:
+ * {{{MockAgent}}} - un agente fingido que registra en {{{DFService}}}.
+ * {{{ProducerMockAgent}}} - un agente productor fingido que crea y añade a su comportamientos el comportamiento del protocolo {{{ProducerBehaviour}}}.
+ * {{{ConsumerMockAgent}}} - un agente productor fingido que crea y añade a su comportamientos el comportamiento del protocolo {{{ConsumerBehaviour}}}.
+ * {{{OnceBidConsumer}}} - un agente consumidor fingido que participa en la subasta, pero confirma solo en la primera iteracion.
+ * {{{TwiceBidsConsumer}}} - un agente consumidor fingido que participa en la subasta, pero confirma solo en las primeras dos iteraciones.
+ * {{{ThreeBidsConsumer}}} - un agente consumidor fingido que participa en la subasta y confirma solo las primeras tres iteraciones de la subasta. Es una clase abstracta.
+ * {{{ThreeBidsConsumerNotReadyToPay}}} - es un agente consumidor fingido del tipo {{{ThreeBidsConsumer}}}, que implementa el método {{{isReadyToPay(double)}}} cada vez a devuelve {{{false}}}. Eso causa terminación del protocolo y no se ejecuta el paso con el pago.
+ * {{{ThreeBidsConsumerReadyToPayWithPaymentFailure}}} - es un agente consumidor fingido del tipo {{{ThreeBidsConsumer}}}, que implementa el método {{{isReadyToPay(double)}}} cada vez a devuelve {{{true}}} pero el método {{{executePayment(AID,double)}}} cada vez devuelve {{{false}}}. Eso dice que una falla se ocurre durante el pago del consumidor.
+ * {{{ThreeBidsConsumerReadyToPayPaymentOK}}} - es un agente consumidor fingido del tipo {{{ThreeBidsConsumer}}}, que implementa los método {{{isReadyToPay(double)}}} y {{{executePayment(AID,double)}}} cada vez a devuelven {{{true}}}. Eso dice que la subasta tiene ganador y el compra la mercancía ganada con éxito.
+ * {{{DoNothingAgent}}} - un agente fingido que solo "escucha" para mensajes y los imprime en la consola. Su meta es para demostrar que el proveedor envía mensajes no solo a los consumidores, pero a todos agentes (es decir hace {{{broadcast}}}).
+ * {{{LazyAgent}}} - es un agente fingido  ficticio que solo "escucha" para mensajes.
+ * {{{SleepyAgent}}} - es un agente fingido  ficticio que solo "escucha" para mensajes.
+ * {{{NotServicesRegisteredAgent}}} - es un agente fingido ficticio que no registra ningún servicio en {{{DFService}}} y por eso, luego no está descubierto del agente productor. La meta de este agente es demostración que un agente que no registra ningún servicio, no participa en la subasta.
+
+=== Clases de Ejemplos ===
+
+Los ejemplos están en el paquete {{{agentes09.negotiation.ProdConsProtocol.examples}}}. Las clases implementan algunos casos generales:
+ * {{{ExampleProdCons}}} - una clase abstracta que prepara y examina el contenedor de agentes.
+ * {{{ExampleProdConsNoConsumers}}} - en ésta clase se ensena el caso cuando no hay consumidores. El productor justamente termina el comportamiento sin enviar ningún mensaje.
+ * {{{ExampleProdConsWinnerRefuseToPay}}} - en esta clase se crean un productor y tres consumidores. Un consumidor es del tipo {{{OnceBidConsumer}}}, el segundo - del tipo {{{TwiceBidsConsumer}}} y el tercero - {{{ThreeBidsConsumerNotReadyToPay}}}. En este caso el protocolo termina sin compra (con mensaje {{{REFUSE}}}).
+ * {{{ExampleProdConsPaymentFails}}} - en esta clase se crean un productor y tres consumidores. Un consumidor es del tipo {{{OnceBidConsumer}}}, el segundo - del tipo {{{TwiceBidsConsumer}}} y el tercero - {{{ThreeBidsConsumerReadyToPayWithPaymentFailure}}}. En este caso el protocolo termina sin compra (con mensaje {{{REFUSE}}}). Eso es una simulación que una falla se ocurre durante el pago del consumidor.
+ * {{{ExampleProdConsOK}}} - en esta clase se crean un productor y tres consumidores. Un consumidor es del tipo {{{OnceBidConsumer}}}, el segundo - del tipo {{{TwiceBidsConsumer}}} y el tercero - {{{ThreeBidsConsumerReadyToPayPaymentOK}}}. Eso es una simulación de terminación del protocolo con éxito, es decir que la subasta tiene ganador y el compra (es decir paga con éxito) la mercancía ganada.
+
+Todas las clases tienen una inicialización de un agente del tipo {{{jade.tools.sniffer.Sniffer}}}, que intercepta la comunicación entre los productor y los consumidores y visualiza el cambio de los mensajes entre ellos.
+
+== Salida de los Ejemplos ==
+
+Aquí se esta presentando una salida del agente {{{Sniffer}}} en cada uno de los ejemplos (sin lo primero).
+
+En cada una de las salidas, se ve que los agentes {{{lazy-agent}}} y {{{sleepy-agent}}} (porque no son consumidores, pero están registrados servicios en {{{DFService}}}) reciben los mensajes de la subasta. En otro lado, el agente con apodo {{{no-registered}}} no recibe ningún mensaje de la subasta, porque no está registrado servicios en {{{DFService}}}.
+
+=== Ejemplo - El Consumidor Rechaza el Pago ===
+
+Eso esta una salida después la ejecución de la clase {{{ExampleProdConsWinnerRefuseToPay}}}:
+
+[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/examples/example-prod-cons-interaction-refuse.png]
+
+Se ve que el ultimo mensaje enviado del consumidor ganador es con performative {{{REFUSE}}}.
+
+=== Ejemplo - El Pago del Consumidor Falla ===
+
+Eso esta una salida después la ejecución de la clase {{{ExampleProdConsPaymentFails}}}:
+
+[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/examples/example-prod-cons-interaction-failure.png]
+
+Se ve que el ultimo mensaje enviado del consumidor ganador es con performative {{{FAILURE}}}.
+
+=== Ejemplo - La Subasta Termine con Éxito ===
+
+Eso esta una salida después la ejecución de la clase {{{ExampleProdConsOK}}}:
+
+[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/examples/example-prod-cons-interaction-ok.png]
+
+Se ve que el ultimo mensaje enviado del consumidor ganador es con performative {{{INFORM}}}, que significa que el pago esta terminado con éxito.
+
+= Trabajos Futuros =
+
+El protocolo {{{Productor-Consumidor}}} se puede mejorar en la manera siguiente:
+ * Se puede separar la memoria de coordinacion entre el protocolo {{{Producer-Consumer}}} (las clases {{{ProducerBehaviour}}} y {{{ConsumerBehaviour}}}) y sus sub-protocolos {{{FIPA English Auction IP}}} ({{{EnglishAuctionInitiator}}} y {{{EnglishAuctionParticipant}}}) y {{{FIPA Request IP}}} ({{{RequestInteractionProtocolInitiator}}} y {{{RequestInteractionProtocolResponder}}}). Es decir que por ahora, por ejemplo de la parte del productor, la memoria de coordinación del comportamiento {{{ProducerBehaviour}}} que se usa para comunicación entre los sub-comportamientos {{{EnglishAuctionInitiator}}} y {{{RequestInteractionProtocolInitiator}}}, se usa también para coordinación entre los estados (comportamientos) internos de {{{EnglishAuctionInitiator}}} y {{{RequestInteractionProtocolInitiator}}}. Como una solución, se puede crear un objeto del tipo {{{jade.core.behaviours.DataStore}}} en cada de las clases {{{EnglishAuctionInitiator}}} y {{{RequestInteractionProtocolInitiator}}}, que se va a usar para coordinar los estados internos de estos sub-protocolos y en esta manera la memoria de coordinación del {{{ProducerBehaviour}}} va a contener solo información que es relacionada solo con la ejecución del {{{ProducerBehaviour}}}. La situación de las clases que implementan la parte del consumidor - {{{ConsumerBehaviour}}}, {{{EnglishAuctionParticipant}}} y {{{RequestInteractionProtocolResponder}}} es similar.
+ * Se pueden refactorizar las nested classes del protocolo {{{FIPA English Auction IP}}} especialmente estos que preparan mensajes para enviar y estos que envían los mensajes preparados.
+ * Se puede pensar como se pueden refactorizar las clases {{{EnglishAuctionInitiator}}} y {{{EnglishAuctionParticipant}}} para reutilizar la lógica implementada en {{{Jade}}}, es decir como se pueden heredar las clases {{{jade.proto.Initiator}}} y {{{jade.proto.Responder}}} correspondientemente por las clases {{{EnglishAuctionInitiator}}} y {{{EnglishAuctionParticipant}}}.
