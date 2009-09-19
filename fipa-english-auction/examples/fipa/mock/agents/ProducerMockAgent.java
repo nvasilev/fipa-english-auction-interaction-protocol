@@ -1,7 +1,5 @@
 package fipa.mock.agents;
 
-import fipa.agent.Consumer;
-import fipa.agent.Producer;
 import fipa.protocol.prodcons.ProducerBehaviour;
 
 /**
@@ -11,60 +9,72 @@ import fipa.protocol.prodcons.ProducerBehaviour;
  * agent.
  * 
  * @author Nikolay Vasilev
+ * @author Ruben Rios
  */
-public class ProducerMockAgent extends MockAgent implements Producer {
+public class ProducerMockAgent extends MockAgent {
 
-    // --- Constants -----------------------------------------------------------
+	// --- Constants -----------------------------------------------------------
 
-    // bloody eclipse
-    private static final long serialVersionUID = 5584489281431406739L;
+	// bloody eclipse
+	private static final long serialVersionUID = 5584489281431406739L;
 
-    private static final double INITIAL_PRICE = 10;
+	private static final double INITIAL_PRICE = 10;
 
-    // --- Instance Variables --------------------------------------------------
+	// --- Instance Variables --------------------------------------------------
 
-    private ProducerBehaviour pb;
-    private double lastProposedPrice;
+	private ProducerBehaviour pb;
+	private double lastProposedPrice;
 
-    // --- Constructor ---------------------------------------------------------
+	// --- Constructor ---------------------------------------------------------
 
-    public ProducerMockAgent() {
-	this.sdType = "producer";
-	this.sdName = "piruleta-production";
-	lastProposedPrice = -1;
-    }
-
-    // --- Methods (Agent) -----------------------------------------------------
-
-    @Override
-    protected void setup() {
-	registerService();
-	// arranging little delay, until the consumer agents are loaded
-	try {
-	    Thread.sleep(1000l);
-	} catch (InterruptedException e) {
-	    e.printStackTrace();
+	public ProducerMockAgent() {
+		this.sdType = "producer" + hashCode();
+		this.sdName = "piruleta-production" + hashCode();
+		lastProposedPrice = -1;
 	}
-	// ...
-	pb = new ProducerBehaviour(this);
-	addBehaviour(pb);
-	// ...
-    }
 
-    // --- Methods (Producer) --------------------------------------------------
+	// --- Methods (Agent) -----------------------------------------------------
 
-    @Override
-    public double getPrice() {
-	if (lastProposedPrice == -1) {
-	    lastProposedPrice = INITIAL_PRICE;
-	    return lastProposedPrice;
+	@Override
+	protected void setup() {
+		super.setup();
+		// arranging little delay, until the consumer agents are loaded
+		try {
+			Thread.sleep(2000l);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		// ...
+		pb = new ProducerBehaviour(this) {
+			private static final long serialVersionUID = 1938386002679822533L;
+
+			@Override
+			public double getPrice() {
+				return ((ProducerMockAgent) myAgent).getPrice();
+			}
+
+			@Override
+			public void handleTerminateEvent(AuctionTerminationEvent event) {
+				((ProducerMockAgent) myAgent).handleTerminateEvent(event);
+			}
+		};
+		addBehaviour(pb);
+		// ...
 	}
-	++lastProposedPrice;
-	return lastProposedPrice;
-    }
 
-    @Override
-    public void handleTerminateEvent(AuctionTerminationEvent event) {
-	// do nothing
-    }
+	// --- Methods -------------------------------------------------------------
+
+	public double getPrice() {
+		if (lastProposedPrice == -1) {
+			lastProposedPrice = INITIAL_PRICE;
+			return lastProposedPrice;
+		}
+		++lastProposedPrice;
+		return lastProposedPrice;
+	}
+
+	public void handleTerminateEvent(
+			ProducerBehaviour.AuctionTerminationEvent event) {
+		// do nothing
+	}
 }

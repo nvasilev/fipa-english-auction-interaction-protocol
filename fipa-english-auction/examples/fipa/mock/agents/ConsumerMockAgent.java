@@ -1,8 +1,6 @@
 package fipa.mock.agents;
 
 import jade.core.AID;
-import fipa.agent.Consumer;
-import fipa.impl.protocol.auction.english.EnglishAuctionInitiatorFactory;
 import fipa.protocol.prodcons.ConsumerBehaviour;
 
 /**
@@ -11,62 +9,75 @@ import fipa.protocol.prodcons.ConsumerBehaviour;
  * supplied by the team responsible for the implementation of the consumer
  * agent.
  * 
+ * @author Ruben Rios
  * @author Nikolay Vasilev
  */
-public class ConsumerMockAgent extends MockAgent implements Consumer {
+public class ConsumerMockAgent extends MockAgent {
 
-    // --- Constants -----------------------------------------------------------
+	// --- Constants -----------------------------------------------------------
 
-    private static final long serialVersionUID = -414529357634217116L;
+	private static final long serialVersionUID = -414529357634217116L;
 
-    // --- Instance Variables --------------------------------------------------
+	// --- Instance Variables --------------------------------------------------
 
-    /**
-     * Instance variable used for counting how many times the consumer agents
-     * are going to bid during one auction session.
-     */
-    private int biddingParticipationCnt = -1;
+	/**
+	 * Instance variable used for counting how many times the consumer agents
+	 * are going to bid during one auction session.
+	 */
+	private int biddingParticipationCnt = -1;
 
-    // --- Constructors --------------------------------------------------------
+	// --- Constructors --------------------------------------------------------
 
-    public ConsumerMockAgent(int biddingParticipationCnt) {
-	this.sdType = EnglishAuctionInitiatorFactory.SEARCHED_SERVICE_DESC_TYPE;
-	this.sdName = "piruleta-eating";
-	this.biddingParticipationCnt = biddingParticipationCnt;
-    }
+	public ConsumerMockAgent(int biddingParticipationCnt) {
+		// this.sdType =
+		// EnglishAuctionInitiatorFactory.SEARCHED_SERVICE_DESC_TYPE;
+		this.sdName = "piruleta-eating" + hashCode();
+		this.biddingParticipationCnt = biddingParticipationCnt;
+	}
 
-    // --- Methods (inherited by Agent) ----------------------------------------
+	// --- Methods (inherited by Agent) ----------------------------------------
 
-    @Override
-    protected void setup() {
-	registerService();
-	// ...
-	ConsumerBehaviour cb = new ConsumerBehaviour(this);
-	addBehaviour(cb);
-	// ...
-    }
+	@Override
+	protected void setup() {
+		super.setup();
+		// ...
+		ConsumerBehaviour cb = new ConsumerBehaviour(this) {
 
-    @Override
-    protected void takeDown() {
-	deregisterService();
-    }
+			private static final long serialVersionUID = -5673575923480301964L;
 
-    // --- Methods (inherited by Consumer) -------------------------------------
+			@Override
+			public boolean isPriceAcceptable(double offeredPrice) {
+				return ((ConsumerMockAgent) myAgent)
+						.isPriceAcceptable(offeredPrice);
+			}
 
-    @Override
-    public boolean isPriceAcceptable(double offeredPrice) {
-	boolean isAcceptable = biddingParticipationCnt > 0;
-	biddingParticipationCnt--;
-	return isAcceptable;
-    }
+			@Override
+			public boolean isReadyToPay(double price) {
+				return ((ConsumerMockAgent) myAgent).isReadyToPay(price);
+			}
 
-    @Override
-    public boolean isReadyToPay(double price) {
-	return true;
-    }
+			@Override
+			public boolean executePayment(AID aid, double price) {
+				return ((ConsumerMockAgent) myAgent).executePayment(aid, price);
+			}
+		};
+		addBehaviour(cb);
+		// ...
+	}
 
-    @Override
-    public boolean executePayment(AID aid, double price) {
-	return true;
-    }
+	// --- Methods -------------------------------------------------------------
+
+	protected boolean isPriceAcceptable(double offeredPrice) {
+		boolean isAcceptable = biddingParticipationCnt > 0;
+		biddingParticipationCnt--;
+		return isAcceptable;
+	}
+
+	protected boolean isReadyToPay(double price) {
+		return true;
+	}
+
+	protected boolean executePayment(AID aid, double price) {
+		return true;
+	}
 }

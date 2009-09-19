@@ -5,16 +5,19 @@ package fipa.mock.agents;
  * bidding iterations.
  * 
  * @author Nikolay Vasilev
+ * @author Ruben Rios
  */
 public abstract class ThreeBidsConsumer extends ConsumerMockAgent {
 
-    // --- Constants -----------------------------------------------------------
+	// --- Constants -----------------------------------------------------------
 
-    private static final long serialVersionUID = -5186297180014452011L;
+	private static final long serialVersionUID = -5186297180014452011L;
 
-    // --- Constructors --------------------------------------------------------
+	// --- Constructors --------------------------------------------------------
 
-    public ThreeBidsConsumer() {
-	super(3);
-    }
+	public ThreeBidsConsumer() {
+		super(3);
+		this.sdName = "three-bid-agent" + hashCode();
+		this.sdType = "three-bid-agent" + hashCode();
+	}
 }

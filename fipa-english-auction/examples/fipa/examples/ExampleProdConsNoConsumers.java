@@ -1,10 +1,12 @@
 package fipa.examples;
 
-import jade.Boot;
+import jade.core.Agent;
 
-import java.io.File;
+import java.util.HashMap;
 
+import fipa.mock.agents.LazyAgent;
 import fipa.mock.agents.ProducerMockAgent;
+import fipa.mock.agents.SleepyAgent;
 
 /**
  * Class which shows example of bidding between one producer and three
@@ -20,27 +22,22 @@ import fipa.mock.agents.ProducerMockAgent;
  * </p>
  * 
  * @author Nikolay Vasilev
+ * @author Ruben Rios
  */
-public class ExampleProdConsNoConsumers {
+public class ExampleProdConsNoConsumers extends ExampleProdCons {
 
-    // --- Methods -------------------------------------------------------------
+	// --- Constructor ---------------------------------------------------------
 
-    public static void main(String[] args) {
-	File projectDir = new File(".");
-	String[] argzz = {
-		"-classpath",
-		projectDir.getAbsolutePath() + "\\classes", // "-gui",
-		"producer:" + ProducerMockAgent.class.getName(),
-		"Sniffer:jade.tools.sniffer.Sniffer(consumer*; producer*)" };
-	Boot bootInstance = null;
-	try {
-	    bootInstance = new Boot(argzz);
-	} catch (Exception e) {
-	    throw new RuntimeException(e);
-	} finally {
-	    if (bootInstance != null) {
-		bootInstance = null;
-	    }
+	public ExampleProdConsNoConsumers() {
+		nickname2ClassMap = new HashMap<String, Class<? extends Agent>>();
+		nickname2ClassMap.put("lazy-agent", LazyAgent.class);
+		nickname2ClassMap.put("sleepy-agent", SleepyAgent.class);
+		nickname2ClassMap.put("producer", ProducerMockAgent.class);
 	}
-    }
+
+	// --- Methods -------------------------------------------------------------
+
+	public static void main(String[] args) {
+		(new ExampleProdConsNoConsumers()).executeExample();
+	}
 }

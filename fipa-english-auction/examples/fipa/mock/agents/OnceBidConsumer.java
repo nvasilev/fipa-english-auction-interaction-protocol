@@ -5,16 +5,19 @@ package fipa.mock.agents;
  * bidding iterations.
  * 
  * @author Nikolay Vasilev
+ * @author Ruben Rios
  */
 public class OnceBidConsumer extends ConsumerMockAgent {
 
-    // --- Constants -----------------------------------------------------------
+	// --- Constants -----------------------------------------------------------
 
-    private static final long serialVersionUID = 8540426195260835551L;
+	private static final long serialVersionUID = 8540426195260835551L;
 
-    // --- Constructors --------------------------------------------------------
+	// --- Constructors --------------------------------------------------------
 
-    public OnceBidConsumer() {
-	super(1);
-    }
+	public OnceBidConsumer() {
+		super(1);
+		this.sdName = "one-bid-agent" + hashCode();
+		this.sdType = "one-bid-agent" + hashCode();
+	}
 }
