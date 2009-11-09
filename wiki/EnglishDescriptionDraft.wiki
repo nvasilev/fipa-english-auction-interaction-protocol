@@ -1,4 +1,4 @@
-#summary Producer-Consumer Negotiation Protocol Protocolo de negociacion entre
+#summary Producer-Consumer Negotiation Protocol Protocolo de negociacion entre (implementation by Nikolay Vasilev and Rubén Ríos)
 
 = Introduction =
 
