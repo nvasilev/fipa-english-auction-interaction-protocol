@@ -1,4 +1,5 @@
-#summary Producer-Consumer Negotiation Protocol Protocolo de negociacion entre (implementation by Nikolay Vasilev and Rubén Ríos)
+#summary FIPA English Auction Interaction Protocol
+(implementation by Nikolay Vasilev and Rubén Ríos)
 
 = The Story =
 
