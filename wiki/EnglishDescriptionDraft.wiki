@@ -1,5 +1,20 @@
 #summary Producer-Consumer Negotiation Protocol Protocolo de negociacion entre (implementation by Nikolay Vasilev and Rubén Ríos)
 
+= The Story =
+
+This project was created after the implementation of concrete task, which was given as final project for the subject "Multi-agent Systems Programming", in the Ms. Sc. program "Software Engineering and Artificial Intelligence" (2008-2009) at University of Málaga, Spain.
+
+= Motivation =
+
+The reason which forced us to create this project was that at the moment of the implementation of our task (June 2009), we needed JADE-based implementation of the FIPA English Auction Interaction Protocol. Unfortunately nowhere in Internet we found such one (at least open source and free one). There was only the experimental protocol *specification* available on the official FIPA site. For that reason we have developed our own implementation of the protocol and decided to publish it, in order to help to other fans of the Multi-agent System development who use JADE as programming language.
+
+= Purpose =
+
+During the implementation of our course-task, we tried to decouple as much as possible the implementation of the protocol from the terms of the concrete domain 
+
+as most separated by the terms and the domain of the concrete task, but 
+The aim of this project is to generalize the implementation logic of the [http://www.fipa.org/specs/fipa00031/XC00031F.html FIPA English Auction Interaction Protocol] in order to be reused in any case, not only for the afore-mentioned task. 
+
 = Introduction =
 
 Definition of the negotiation protocols between the production centers and consumer centers for the price of the goods.
