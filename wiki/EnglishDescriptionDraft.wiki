@@ -6,7 +6,7 @@ This project was created after the implementation of concrete task, which was gi
 
 = Motivation =
 
-The reason which forced us to create this project was that at the moment of the implementation of our task (June 2009), we needed JADE-based implementation of the FIPA English Auction Interaction Protocol. Unfortunately nowhere in Internet we found such one (at least open source and free one). There was only the experimental protocol *specification* available on the official FIPA site. For that reason we have developed our own implementation of the protocol and decided to publish it, in order to help to other fans of the Multi-agent System development who use JADE as programming language.
+The reason which forced us to create this project was that at the moment of the implementation of our task (June 2009), we needed JADE-based implementation of the FIPA English Auction Interaction Protocol. Unfortunately nowhere in Internet we found such one (at least open source and free one). There was only the experimental protocol *specification* available on the official FIPA site. For that reason we have developed our own implementation of the protocol and decided to publish it, in order to help to other fans of the Multi-agent System development who use JADE as programming language, who need the implementation of this protocol.
 
 = Purpose =
 
