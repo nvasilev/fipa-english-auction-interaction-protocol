@@ -9,30 +9,29 @@ This project was created after the implementation of concrete task, which was gi
 
 = Motivation =
 
-The reason which forced us to create this project was that at the moment of the implementation of our task (June 2009), we needed JADE-based implementation of the FIPA English Auction Interaction Protocol. Unfortunately nowhere in Internet we found such one (at least open source and free one). There was only the experimental protocol *specification* available on the official FIPA site. For that reason we have developed our own implementation of the protocol. We decided to publish it, in order to help to other fans of the Multi-agent System development who use JADE as programming language and who need this implementation.
+The reason which forced us to create this project was that at the moment of the implementation of our task (June 2009), we needed JADE-based implementation of the FIPA English Auction Interaction Protocol. Unfortunately nowhere in Internet we found such one (at least open source and free one). There was only the experimental protocol *specification* available on the official FIPA site. For that reason we have developed our own implementation of the protocol. We decided to publish it, in order to help to other fans of the Multi-agent System development who use JADE as programming language and who need this implementation. 
+
+(We have to note, that the original version of this document was written in Spanish, but we decided to translate it in English as well. Correspondingly the original Spanish version is going to be kept in this wiki, but the updates on the document first would appear here, and later there)
 
 = Purpose =
 
-During the implementation of our course-task, we tried to decouple as much as possible the implementation of the protocol from our specific-task domain logic in order the former, to be able to evolve independently and to not affect (neither to be affected) by the domain logic to which it is applied. The idea is if there are further changes in the FIPA specification, they to be applied to our implementation without affect the rest of the locic.
+During the implementation of our course-task, we tried to decouple as much as possible the implementation of the protocol from our specific-task domain logic in order the latter, to be able to evolve independently and to not affect (neither to be affected) by the domain logic to which it is applied. The idea is if there are further changes in the FIPA specification, they to be applied to our implementation without affecting the rest of the logic.
 
-as most separated by the terms and the domain of the concrete task, but 
-The aim of this project is to generalize the implementation logic of the [http://www.fipa.org/specs/fipa00031/XC00031F.html FIPA English Auction Interaction Protocol] in order to be reused in any case, not only for the afore-mentioned task. 
+= Concrete Task =
 
-= Introduction =
-
-Definition of the negotiation protocols between the production centers and consumer centers for the price of the goods.
+The concrete task, which was the reason for the implementation of the FIPA specification is: there are given number of producers of some goods, and correspondingly given number of consumers. It is needed to be developed negotiation protocol between the producers and the consumers for the price of the goods.
 
 = Content =
 <wiki:toc max_depth="4" />
 
-= Details =
+= Concrete Task-Solution Details =
 
-The communication protocol for developing between the producer and the consumers would be finally of the type English Auction, in which the producer offers its production to with a given initial price {{{$0}}} and sells it to bidder who offers the highest price.
+The communication protocol between the producer and the consumers is chosen to be of the type English Auction, in which the producer offers its production on a given initial price {{{$0}}} and sells it to consumers, who correspondingly starts to bid up the price. At the end the consumer, who has offered highest price, win the bidding and receive the goods.
 
 <wiki:comment>
 == Interactions ==
 
-According to the FIPA (http://www.fipa.org/specs/fipa00031/index.html), the protocol takes place in the following manner: the auctioneer (producer in our case)  
+According to the FIPA (http://www.fipa.org/specs/fipa00031/index.html), the protocol takes place in the following manner: the auctioneer (producer in the terms of the task which has to be solved) 
 
 
 , el protocolo tiene lugar de la siguiente manera: el subastador (productor en nuestro caso) trata de encontrar el precio de mercado de un bien o producto proponiendo un precio de salida inferior que el del valor de mercado y va aumentando gradualmente el precio. Cada vez que el subastador anuncia el precio, este espera la señal de compradores que estén dispuestos a pagar el precio propuesto. Tan pronto como un comprador indica que acepta el precio, el subastador hace un nuevo llamamiento de convocatoria de ofertas con un precio ligeramente superior. La subasta continua hasta que los compradores no están dispuestos a pagar el precio propuesto. El producto se vende al comprador que realizo la ultima oferta por el precio acordado.
