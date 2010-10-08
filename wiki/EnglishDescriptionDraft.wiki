@@ -85,11 +85,11 @@ This protocol is implemented by the class {{{ProducerBehaviour}}}, which inherit
 
 [http://fipa-english-auction-interaction-protocol.googlecode.com/svn/resources/diagrams/state/state-diagram-prodcons-producer.png]
 
-Según la especificación del protocolo {{{English Auction IP}}}, si hay ganador de la subasta el protocolo tiene que preparar un mensaje {{{ACLMessage}}} con performative {{{REQUEST}}}, que se va a utilizar como un mensaje de inicialización del protocolo {{{Request IP}}}. 
+According to the {{{English Auction IP}}} protocol specification, if there is winner in the auction the protocol have to prepare an {{{ACLMessage}}} message with performative  {{{REQUEST}}}, which will be used as a initialization message by the {{{Request IP}}} protocol. 
 
-Si hay un ganador, el protocolo {{{English Auction IP}}} crea el mensaje {{{REQUEST}}} y lo guarda en la memoria de coordinación. Después se ejecuta el otro protocolo (comportamiento) {{{Request IP}}}. El usa el mensaje guardado antes, para empezar la comunicación con el ganador sobre el pago. Después la salida del {{{Request IP}}},  {{{ProducerBehaviour}}} termina también.
+If there is a winner, the {{{English Auction IP}}} protocol creates the {{{REQUEST}}} message and stores it in the coordination memory. Afterwards is executed the other protocol (behaviour) - {{{Request IP}}}. It uses the previously stored message to start with the winner the communication related to the payment. After that the termination of the {{{Request IP}}},  from the  {{{ProducerBehaviour}}} terminates as well.
 
-Si no hay mensaje {{{REQUEST}}} el protocolo (comportamiento) {{{ProducerBehaviour}}} termina directamente.
+If there is no {{{REQUEST}}} message the {{{ProducerBehaviour}}} protocol (behaviour) terminates directly.
 
 Esa clase declara el {{{enum}}}:
 {{{
