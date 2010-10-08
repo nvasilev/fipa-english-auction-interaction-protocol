@@ -91,7 +91,7 @@ If there is a winner, the {{{English Auction IP}}} protocol creates the {{{REQUE
 
 If there is no {{{REQUEST}}} message the {{{ProducerBehaviour}}} protocol (behaviour) terminates directly.
 
-Esa clase declara el {{{enum}}}:
+This is the declaration of the {{{enum}}}:
 {{{
     public enum AuctionTerminationEvent {
 	NO_WINNER,
@@ -100,7 +100,7 @@ Esa clase declara el {{{enum}}}:
 	PAYMENT_OK
     }
 }}}
-que se usa en la comunicación entre el agente y el comportamiento (behaviour). Su meta es a notificar el productor para la salida de la subasta.
+It is used in the communication between the agent and the behaviour. Its aim is to let the producer know how the auction has finished.
 
 También esta clase declara algunos métodos abstractos que el agente que quiere usar este comportamiento, tiene que implementar. Los métodos son los siguientes:
  * {{{public double getPrice()}}} - cada vez invocado, este método devuelve un precio nuevo para cada iteración de la subasta.
