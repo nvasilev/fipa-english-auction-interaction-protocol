@@ -102,115 +102,115 @@ This is the declaration of the {{{enum}}}:
 }}}
 It is used in the communication between the agent and the behaviour. Its aim is to let the producer know how the auction has finished.
 
-También esta clase declara algunos métodos abstractos que el agente que quiere usar este comportamiento, tiene que implementar. Los métodos son los siguientes:
- * {{{public double getPrice()}}} - cada vez invocado, este método devuelve un precio nuevo para cada iteración de la subasta.
- * {{{public void handleTerminateEvent(AuctionTerminationEvent)}}} - notifica el productor para el evento de salida de la subasta.
+Also this class declare several abstract methods which must be implemented by the agent, which wants to use that behaviour. The methods are the following one:
+ * {{{public double getPrice()}}} - each time invoked, this method returns a new price for the auction iteration.
+ * {{{public void handleTerminateEvent(AuctionTerminationEvent)}}} - notifies the producer for the event of exit from the auction.
 
-=== Parte del Consumidor ===
+=== Consumer Side ===
 
-Este protocolo esta implementado de la clase {{{ConsumerBehaviour}}} que hereda la clase {{{FSMBehaviour}}}. La diagrama de los estados es la siguiente:
+This protocol implements the class {{{ConsumerBehaviour}}}, which inherits the class {{{FSMBehaviour}}}. The state diagram is the following:
 
 [http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/protocol-state-machine-diagrams/state-diagram-prodcons-consumer.png]
 
-El modelo de este lado es similar como el modelo de la parte del productor. Antes la salida del comportamiento {{{English Auction IP}}} el agente consumidor sabe si es ganador o no. Si no es ganador el protocolo {{{ConsumerBehaviour}}} termina. Si es ganador, se ejecuta el protocolo {{{Request IP}}}. Cuando se incializa el protocolo {{{Request IP}}} se espera para el mensaje {{{REQUEST}}} que tiene que venir del productor. Después empieza la comunicación entre los agentes con que se ejecuta el pago.
+The model of the consumer side is similar to the one of producer side. Before the termination of the behaviour {{{English Auction IP}}} the agent "knows" whether it is winner or not. If it is not winner, the protocol {{{ConsumerBehaviour}}} terminates. If the agent is winner is executed the protocol {{{Request IP}}}. During the initialization of the protocol {{{Request IP}}} is expected a {{{REQUEST}}} message which should arrive from the producer. Afterwards starts the communication between the agents between which will be performed the payment.
 
-*NOTA*: El pago no esta implementado en este protocolo. Esta funcionalidad esta delegada al agente consumidor porque es especifica.
+*NOTE*: The payment is not implemented in this protocol. This functionality is delegated to the consumer agent because it is quite specific for our implementation.
 
-Esta clase declara algunos métodos abstractos que el agente que quiere usar este comportamiento, tiene que implementar. Los métodos son los siguientes:
- * {{{public boolean isPriceAcceptable(double)}}} - Devuelve {{{true}}} si el precio sugerido por el productor para vender la mercancía es aceptado por el consumidor y {{{false}}} en otro caso.
- * {{{public boolean isReadyToPay(double)}}} - Prueba si el consumidor esta listo para pagar el precio sugerido.
- * {{{public boolean executePayment(AID,double)}}} - Ejecuta el pago al productor y devuelve {{{true}}} si el pago termina con éxito y {{{false}}} en otro caso.
+This class declares several abstract methods which must be implemented by the agent which wants to use this behaviour. The methods are the following:
+ * {{{public boolean isPriceAcceptable(double)}}} - Returns {{{true}}} if the price proposed by the producer in order to sell the goods is accepted by the consumer and {{{false}}} otherwise.
+ * {{{public boolean isReadyToPay(double)}}} - Checks whether the consumer is ready for the proposed payment or not.
+ * {{{public boolean executePayment(AID,double)}}} - Executes the payment to the producer and returns {{{true}}} if the payment is successful and {{{false}}} otherwise.
 
-== Modelo del FIPA English Auction Interaction Protocol ==
+== Model of the FIPA English Auction Interaction Protocol ==
 
-En este momento, la especificación del protocolo esta con estatus "Experimental" y entonces no hay implementación en la distribución de {{{Jade}}} usada. Por eso el protocolo de subasta inglesa se había implementado desde el principio.
+At this moment, the specification of the protocol is in status "Experimental" and so far there is no implementation in the used {{{Jade}}} distribution. For that reason the English auction protocol had to be implemented from scratch.
 
-=== Parte del Productor ===
+=== Producer Side ===
 
-La parte principal del protocolo esta implementado en la clase {{{EnglishAuctionInitiator}}} que hereda la clase {{{FSMBehaviour}}}. Aunque realmente el agente usa la clase {{{EnglishAuctionInitiatorImpl}}} (que hereda {{{EnglishAuctionInitiator}}}), que hace la conexión entre el protocolo y el agente, usando los métodos definidos en la clase {{{ProducerBehaviour}}}.
+The main part of the protocol is implemented in the class {{{EnglishAuctionInitiator}}} which inherits from the class {{{FSMBehaviour}}}. Although at the end the agent uses the class {{{EnglishAuctionInitiatorImpl}}} (which inherits from {{{EnglishAuctionInitiator}}}), which makes the connection between the protocol and the agent, using the methods defined in the class {{{ProducerBehaviour}}}.
 
-La diagrama de los estados es la siguiente:
+The state diagram is the following:
 
 [http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/protocol-state-machine-diagrams/state-diagram-english-auction-initiator.png]
 
-Cada uno de los estados es un comportamiento (que en los mas de los casos hereda {{{jade.core.behaviours.OneShotBehaviour}}}). De nuevo como una memoria compartida se usa un objeto del tipo {{{jade.core.behaviours.DataStore}}}. De hecho este {{{DataStore}}} es el uno que se utiliza del {{{ProducerBehaviour}}} también.
+Each of the states is a behaviour (which in most of the cases inherit from {{{jade.core.behaviours.OneShotBehaviour}}}). Again as shared memory is used an object of type {{{jade.core.behaviours.DataStore}}}. In fact this {{{DataStore}}} is used by {{{ProducerBehaviour}}} as well.
 
-El productor hace un {{{broadcast}}} a todos agentes registrados en {{{DFService}}} independientemente del nombre del servicio registrado de ellos. 
+The producer performs a {{{broadcast}}} to all agents registered in {{{DFService}}} independently of the name of the registered service.
 
-=== Parte del Consumidor ===
+=== Consumer Side ===
 
-La parte principal del protocolo esta implementado en la clase {{{EnglishAuctionParticipant}}} que hereda la clase {{{FSMBehaviour}}}. Aunque realmente el agente usa la clase {{{EnglishAuctionParticipantImpl}}} (que hereda {{{EnglishAuctionParticipant}}}), que hace la conexión entre el protocolo y el agente, usando los métodos definidos en la clase {{{ConsumerBehaviour}}}.
+The main part of the protocol is implemented in the class {{{EnglishAuctionParticipant}}} which inherits from the class {{{FSMBehaviour}}}. Finally, the agent uses the class {{{EnglishAuctionParticipantImpl}}} (which inherits from {{{EnglishAuctionParticipant}}}), which connects the protocol and the agent, using the methods provided by the class {{{ConsumerBehaviour}}}.
 
-La diagrama de los estados es la siguiente:
+The state diagram is the following:
 
 [http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/protocol-state-machine-diagrams/state-diagram-english-auction-participant.png]
 
-Cada uno de los estados es un comportamiento (que en los mas de los casos hereda {{{jade.core.behaviours.OneShotBehaviour}}}). De nuevo como una memoria compartida se usa un objeto del tipo {{{jade.core.behaviours.DataStore}}}. De hecho este {{{DataStore}}} es el uno que se utiliza del {{{ConsumerBehaviour}}} también.
+Each of the states is a behaviour (which in most of the cases inherits from {{{jade.core.behaviours.OneShotBehaviour}}}). Again, as a shared memory is used the object of type {{{jade.core.behaviours.DataStore}}}. This memory is used by the {{{ConsumerBehaviour}}} as well.
 
-== Modelo del FIPA Request Interaction Protocol ==
+== Model of the FIPA Request Interaction Protocol ==
 
-En este momento, la especificacion del protocolo esta con estatus "Standard" y entonces hay implementación en la distribución de {{{Jade}}} usada. Según el [http://jade.tilab.com/doc/programmersguide.pdf JADE Programmer's Guide] para implementar este protocolo se tienen que usar las clases {{{jade.proto.AchieveREInitiator}}} y {{{jade.proto.AchieveREResponder}}}. Por eso habían usados estas clases.
+At this moment, the specification of the protocol is with status "Standard", thus there is implementation of in the used {{{Jade}}} distribution. According to [http://jade.tilab.com/doc/programmersguide.pdf JADE Programmer's Guide], in order to implement this protocol are needed to be used the classes {{{jade.proto.AchieveREInitiator}}} and {{{jade.proto.AchieveREResponder}}}. For that reason were used these classes.
 
-=== Parte del Productor ===
+=== Producer Side ===
 
-La parte principal del protocolo esta implementado de la clase {{{RequestInteractionProtocolInitiator}}} que hereda la clase {{{AchieveREInitiator}}}. Aunque realmente el agente usa la clase {{{RequestInteractionProtocolInitiatorImpl}}} (que hereda {{{RequestInteractionProtocolInitiator}}}), que hace la conexión entre el protocolo y el agente, usando los métodos definidos en la clase {{{ProducerBehaviour}}}.
+The main part of the protocol is implemented by the class {{{RequestInteractionProtocolInitiator}}} which inherits from the class {{{AchieveREInitiator}}}. In fact the agent uses the class {{{RequestInteractionProtocolInitiatorImpl}}} (which inherits from {{{RequestInteractionProtocolInitiator}}}), which is the connection between the protocol and the agent, using the methods defined in the class {{{ProducerBehaviour}}}.
 
-En el principio, la clase {{{RequestInteractionProtocolInitiator}}} obtiene el mensaje {{{REQUEST}}} guardado del comportamiento de la subasta inglesa en el {{{DataStore}}}.
+In the beginning, the class {{{RequestInteractionProtocolInitiator}}} obtains the {{{REQUEST}}} message from the {{{DataStore}}}, stored by the English auction behaviour.
 
-Al fin de la ejecución, la clase {{{RequestInteractionProtocolInitiatorImpl}}} usa los métodos de la clase {{{ProducerBehaviour}}} y notifica el agente productor para la salida del pago.
+At the end of the execution, the class {{{RequestInteractionProtocolInitiatorImpl}}} uses the methods by the class {{{ProducerBehaviour}}} and notifies the producer agent for the exit of the payment.
 
-=== Parte del Consumidor ===
+=== Consumer Side ===
 
-La parte principal del protocolo esta implementado de la clase {{{RequestInteractionProtocolResponder}}} que hereda la clase {{{AchieveREResponder}}}. Aunque realmente el agente usa la clase {{{RequestInteractionProtocolResponderImpl}}} (que hereda {{{RequestInteractionProtocolResponder}}}), que hace la conexion entre el protocolo y el agente, usando los métodos definidos en la clase {{{ConsumerBehaviour}}}.
+The main part of the protocol is implemented by the class {{{RequestInteractionProtocolResponder}}} which inherits from the class {{{AchieveREResponder}}}. In fact the agent uses the class {{{RequestInteractionProtocolResponderImpl}}} (which inherits from {{{RequestInteractionProtocolResponder}}}), which is the connection between the protocol and the agent, using the methods defined in the class {{{ConsumerBehaviour}}}.
 
-En el principio, la clase {{{RequestInteractionProtocolResponder}}} recibe el mensaje {{{REQUEST}}} del productor y prepara una respuesta.
+At the beginning, the class {{{RequestInteractionProtocolResponder}}} receives the {{{REQUEST}}} message by the producer and prepare the response.
 
-La clase {{{RequestInteractionProtocolResponderImpl}}} usa los métodos de la clase {{{ConsumerBehaviour}}} y "pregunta" el agente correspondiente si esta listo a hacer pago y correspondientemente si la respuesta es positiva, si el pago esta con éxito.
+The class {{{RequestInteractionProtocolResponderImpl}}} uses the methods of the class {{{ConsumerBehaviour}}} and "asks" the corresponding agent whether is ready to pay. Respectively if the answer is positive, the payment terminates successfully.
 
-= Arquitectura =
+= Architecture =
 
-La arquitectura del protocolo {{{Productor-Consumidor}}} es la siguiente:
+The architecture of the protocol {{{Productor-Consumidor}}} is the following:
 
 [http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/class-diagrams/class-diagram-prodcons-protocol.png]
 
-Todas las clases de este protocolo usan el {{{logging}}} estándar de {{{Java}}}. Su configuración se puede modificar en la clase {{{ProdConsConfiguration}}}.
+All the classes from this protocol use the standard {{{Java logging}}}. Its configuration could be modified in the class {{{ProdConsConfiguration}}}.
 
-Los estados internos del protocolo de subasta inglesa (en las ambos partes - del productor y del consumidor) son implementado como {{{nested classes}}}.
+The internal states of the English auction protocol (in the both sides - producer and consumer) are implemented as {{{nested classes}}}.
 
-== Nested Classes del Productor ==
+== Nested Classes of the Producer ==
 
-Las nested clases de la parte del productor están implementado en la clase {{{EnglishAuctionInitiator}}}. Ellas son las siguientes:
- * {{{PrepareInitiations}}} - prepara los mensajes de iniciación del protocolo (con performative {{{INFORM}}}).
- * {{{SendInitiations}}} - envía los mensajes de iniciación.
- * {{{PrepareCfps}}} - prepara los mensajes de iniciación de una iteración de la subasta (con performative {{{CFP}}}).
- * {{{SendCfps}}} - envía los mensajes de iniciación de la iteración de la subasta.
- * {{{ReplyReceiver}}} - responsable de acumular los mensajes recibidos.
- * {{{SeqChecker}}} - verifica que los mensajes recibidos son en la secuencia requerida del protocolo.
- * {{{NotUnderstoodHandler}}} - maneja mensajes que no están como se espera en el protocolo.
- * {{{FailureHandler}}} - maneja mensajes que causan falla.
- * {{{OutOfSequenceHandler}}} - maneja mensajes que no están en secuencia.
- * {{{ProposeHandler}}} - maneja las confirmaciones del consumidor (mensajes con performative {{{PROPOSE}}}).
- * {{{SessionsVerifier}}} - verifica que cada consumidor que se pone en contacto es parte de la subasta (es decir, tiene un objeto de sesión que se guarda del productor).
- * {{{PrepareProposals}}} - prepara las notificaciones quien consumidor esta ganador en la corriente iteracion de la subasta (es decir mensajes con performatives {{{ACCEPT_PROPOSAL}}} y {{{REJECT_PROPOSAL}}}).
- * {{{SendProposals}}} - envía las notificaciones.
- * {{{TerminateBiddingIteration}}} - termina la corriente iteración de la subasta.
- * {{{PrepareClosingInforms}}} - prepara mensajes para terminación de la subasta (mensajes con performative {{{INFORM}}} y contenido quien es el ganador de la subasta).
- * {{{SendClosingInforms}}} - envía los mensajes para terminación de la subasta inglesa a los consumidores (mensaje con performative {{{INFORM}}}).
- * {{{PrepareWinnerRequest}}} - prepara el mensaje con performative {{{REQUEST}}} que se va a usar como mensaje de inicialización del protocolo {{{Request Interaction Protocol}}}.
+The nested classes by the producer side are implemented in the class {{{EnglishAuctionInitiator}}}. They are as follows:
+ * {{{PrepareInitiations}}} - prepares the initiation messages of the protocol (with performative {{{INFORM}}}).
+ * {{{SendInitiations}}} - sends the initiation messages.
+ * {{{PrepareCfps}}} - prepares the initiation messages for each iteration of the auction (with performative {{{CFP}}}).
+ * {{{SendCfps}}} - sends the initiation messages of the initiation of an auction iteration.
+ * {{{ReplyReceiver}}} - responsible for collection of the received messages.
+ * {{{SeqChecker}}} - verifies that the received messages are in the expected by the protocol sequence.
+ * {{{NotUnderstoodHandler}}} - manage the messages which are not expected by the protocol.
+ * {{{FailureHandler}}} - manages the messages causing failure.
+ * {{{OutOfSequenceHandler}}} - manages the messages which are not in sequence.
+ * {{{ProposeHandler}}} - manages the confirmations by the consumer (messages with performative {{{PROPOSE}}}).
+ * {{{SessionsVerifier}}} - verifies that each consumer which is contacted participates in the auction (for the purpose, there is an session object which is kept by the producer).
+ * {{{PrepareProposals}}} - prepares the notifications which the consumer receives whether it is winner in the current iteration of the auction (i.e. messages with performatives {{{ACCEPT_PROPOSAL}}} and {{{REJECT_PROPOSAL}}}).
+ * {{{SendProposals}}} - sends the notifications.
+ * {{{TerminateBiddingIteration}}} - terminates the current iteration of the auction.
+ * {{{PrepareClosingInforms}}} - prepares the messages for termination of the auction (messages with performative {{{INFORM}}} and which is the winner of the auction).
+ * {{{SendClosingInforms}}} - sends the messages for termination of the English auction to the consumers (message with performative {{{INFORM}}}).
+ * {{{PrepareWinnerRequest}}} - prepares the message with performative {{{REQUEST}}} which will be used as initialization message by the protocol {{{Request Interaction Protocol}}}.
 
-== Nested Classes del Consumidor ==
+== Nested Classes of the Consumer ==
 
-Las nested clases de la parte del consumidor están implementado en la clase {{{EnglishAuctionParticipant}}}. Ellas son las siguientes:
- * {{{InitInformReceiver}}} - recibe el mensaje con performative {{{INFORM}}} con que el productor empieza el protocolo.
- * {{{NextMsgReceiver}}} - recibe los mensajes después el primer mensaje {{{INFORM}}}.
- * {{{SeqChecker}}} - verifica que los mensajes recibidos son en la secuencia requerida del protocolo.
- * {{{OutOfSeqHandler}}} - maneja mensajes que no están en secuencia.
- * {{{NextReplySender}}} - envía las respuestas de los mensajes recibidos durante la subasta.
- * {{{CfpHandler}}} - maneja las ofertas del productor (mensajes con performative {{{INFORM}}}.
- * {{{AcceptProposalHandler}}} - maneja la confirmación del productor que el consumidor esta el ganador en la iteracion corriente de la subasta (mensaje con performative {{{ACCEPT_PROPOSAL}}}).
- * {{{RejectProposalHandler}}} - maneja el rechazo del productor que el consumidor no esta ganador en la iteracion corriente de la subasta (mensaje con performative {{{REJECT_PROPOSAL}}}).
- * {{{TerminateBiddingIteration}}} - termina la iteración corriente de la subasta y limpia la memoria de coordinación de la información guardada durante la iteración.
- * {{{ClosingInformHandler}}} - maneja el mensaje que cierra la subasta (mensaje con performative {{{INFORM}}}).
+The nested classes by the side of the consumer are implemented in the class {{{EnglishAuctionParticipant}}}. They are the following:
+ * {{{InitInformReceiver}}} - receives the message with performative {{{INFORM}}} with which the producer starts the protocol.
+ * {{{NextMsgReceiver}}} - receives the messages after the first {{{INFORM}}} message.
+ * {{{SeqChecker}}} - verifies that the received messages are in sequence expected by the protocol.
+ * {{{OutOfSeqHandler}}} - manages the messages which are out of sequence.
+ * {{{NextReplySender}}} - sends the responses of the messages received during the auction.
+ * {{{CfpHandler}}} - manages the offers by the producer (messages with performative {{{INFORM}}}.
+ * {{{AcceptProposalHandler}}} - manages the confirmation of the producer which the producer in the current iteration of the auction (message with performative {{{ACCEPT_PROPOSAL}}}).
+ * {{{RejectProposalHandler}}} - manages the rejection of the producer to the consumers which are not winners in the current iteration of the auction (message with performative {{{REJECT_PROPOSAL}}}).
+ * {{{TerminateBiddingIteration}}} - terminates the current iteration of the auction and cleans the coordination memory from the temporary information stored during the iteration.
+ * {{{ClosingInformHandler}}} - manages the message which closes the auction (message with performative {{{INFORM}}}).
 
 <wiki:comment>
 La arquitectura que se intente usar por ahora se base en el protocolo de comunicación FIPA-Contract-Net.
@@ -230,15 +230,15 @@ El productor es el iniciador de la conversación y el es el uno que la termina. 
    * {{{AcceptProposalMsgHandler}}}  - esa clase procesa {{{ACLMessage}}}s con performative ACCEPT_PROPOSAL.
 </wiki:comment>
 
-= Requisitos =
+= Requirements =
 
-== Requisitos Tecnicos ==
+== Technical Requirements ==
 
-Este protocolo esta implementado usando {{{Java SDK 1.6}}} y {{{Jade 3.7}}}.
+This protocol is implemented using {{{Java SDK 1.6}}} and {{{Jade 3.7}}}.
 
-== Requisitos del Consumidor ==
+== Consumer's Requirements ==
 
-Para puede participar en una subasta, *el consumidor, tiene que registrar al menos un servicio en {{{DFService}}}*.
+In order to participate in an auction, *the consumer must register at least one service in {{{DFService}}}*.
 
 <wiki:comment>
 Requisitos de Uso
@@ -324,7 +324,8 @@ public interface Consumer {
 }}}
 </wiki:comment>
 
-= Uso =
+= Usage =
+
 Los agentes tienen que crear los comportamientos usando los constructores correspondientemente de las dos clases {{{ProducerBehaviour}}} y {{{ConsumerBehaviour}}}. El productor y el consumidor tienen que crear una clase anónima (o justamente una clase que hereda el comportamiento querido) implementando los métodos abstractos definidos correspondientemente por {{{ProducerBehaviour}}} y {{{ConsumerBehaviour}}}.
 
 == Uso del Productor ==
