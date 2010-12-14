@@ -75,7 +75,7 @@ Also this class declare several abstract methods which must be implemented by th
 
 This protocol implements the class {{{ConsumerBehaviour}}}, which inherits the class {{{FSMBehaviour}}}. The state diagram is the following:
 
-[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/protocol-state-machine-diagrams/state-diagram-prodcons-consumer.png]
+[http://fipa-english-auction-interaction-protocol.googlecode.com/svn/resources/diagrams/state/state-diagram-prodcons-consumer.png]
 
 The model of the consumer side is similar to the one of producer side. Before the termination of the behaviour {{{English Auction IP}}} the agent "knows" whether it is winner or not. If it is not winner, the protocol {{{ConsumerBehaviour}}} terminates. If the agent is winner is executed the protocol {{{Request IP}}}. During the initialization of the protocol {{{Request IP}}} is expected a {{{REQUEST}}} message which should arrive from the producer. Afterwards starts the communication between the agents between which will be performed the payment.
 
@@ -96,7 +96,7 @@ The main part of the protocol is implemented in the class {{{EnglishAuctionIniti
 
 The state diagram is the following:
 
-[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/protocol-state-machine-diagrams/state-diagram-english-auction-initiator.png]
+[http://fipa-english-auction-interaction-protocol.googlecode.com/svn/resources/diagrams/state/state-diagram-english-auction-initiator.png]
 
 Each of the states is a behaviour (which in most of the cases inherit from {{{jade.core.behaviours.OneShotBehaviour}}}). Again as shared memory is used an object of type {{{jade.core.behaviours.DataStore}}}. In fact this {{{DataStore}}} is used by {{{ProducerBehaviour}}} as well.
 
@@ -108,7 +108,7 @@ The main part of the protocol is implemented in the class {{{EnglishAuctionParti
 
 The state diagram is the following:
 
-[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/protocol-state-machine-diagrams/state-diagram-english-auction-participant.png]
+[http://fipa-english-auction-interaction-protocol.googlecode.com/svn/resources/diagrams/state/state-diagram-english-auction-participant.png]
 
 Each of the states is a behaviour (which in most of the cases inherits from {{{jade.core.behaviours.OneShotBehaviour}}}). Again, as a shared memory is used the object of type {{{jade.core.behaviours.DataStore}}}. This memory is used by the {{{ConsumerBehaviour}}} as well.
 
@@ -136,7 +136,7 @@ The class {{{RequestInteractionProtocolResponderImpl}}} uses the methods of the 
 
 The architecture of the protocol {{{Producer-Consumer}}} is the following:
 
-[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/class-diagrams/class-diagram-prodcons-protocol.png]
+[http://fipa-english-auction-interaction-protocol.googlecode.com/svn/resources/diagrams/class/class-diagram-prodcons-protocol.png]
 
 All the classes from this protocol use the standard {{{Java logging}}}. Its configuration could be modified in the class {{{ProdConsConfiguration}}}.
 
@@ -284,7 +284,7 @@ In the folder {{{examples}}} there is a demonstration how is used the protocol {
 
 In the package {{{agentes09.negotiation.ProdConsProtocol.mock.agents}}} are implemented several fake agents:
 
-[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/class-diagrams/class-diagram-examples-mock-agents.png]
+[http://fipa-english-auction-interaction-protocol.googlecode.com/svn/resources/diagrams/class/class-diagram-examples-mock-agents.png]
 
 Here there is short description of the classes from the diagram:
  * {{{MockAgent}}} - a fake agent which registers itself in {{{DFService}}}.
@@ -323,7 +323,7 @@ In each of the outputs can be seen that the agents {{{lazy-agent}}} and {{{sleep
 
 This is an output after the execution of the class {{{ExampleProdConsWinnerRefuseToPay}}}:
 
-[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/examples/example-prod-cons-interaction-refuse.png]
+[http://fipa-english-auction-interaction-protocol.googlecode.com/svn/resources/examples-sinffer/example-prod-cons-interaction-refuse.png]
 
 It can be see seen that the last message sent by the winner consumer is with performative  {{{REFUSE}}}.
 
@@ -331,7 +331,7 @@ It can be see seen that the last message sent by the winner consumer is with per
 
 This is an output from the execution of the class {{{ExampleProdConsPaymentFails}}}:
 
-[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/examples/example-prod-cons-interaction-failure.png]
+[http://fipa-english-auction-interaction-protocol.googlecode.com/svn/resources/examples-sinffer/example-prod-cons-interaction-failure.png]
 
 It can be seen that the last message sent by the consumer-winner is with performative {{{FAILURE}}}.
 
@@ -339,7 +339,7 @@ It can be seen that the last message sent by the consumer-winner is with perform
 
 This is an output from the execution of the class {{{ExampleProdConsOK}}}:
 
-[http://agentes09.googlecode.com/svn/branches/protocols/prod-cons/examples/example-prod-cons-interaction-ok.png]
+[http://fipa-english-auction-interaction-protocol.googlecode.com/svn/resources/examples-sinffer/example-prod-cons-interaction-ok.png]
 
 It can be seen that the last message sent by the consumer-winner is with performative {{{INFORM}}}, which means that the payment is terminated successfully.
 
